@@ -1,0 +1,273 @@
+Are you suggesting that this is a knife I hold in my hand?
+1 2 6 24 120 720
+7 o 322
+9 
+mpmeka
+3 6 2 4 5 1
+
+EDX went from 4 to 101 'e'
+EDX went from 9 to 98 'b'
+EDX went from 4 to 101 'e'
+EDX went from 1 to 115 's'
+EDX went from 14 to 102 'f'
+EDX went from 3 to 118 'v'
+
+
+input string of length 6
+
+Phase one: Checks to see if the input string matches the string:
+Are you suggesting that this is a knife I hold in my hand?
+
+Phase two: Takes 6 integers such that each digit is equal to
+the previous digit multiplied by the new digit's index 
+(index starting at 1)
+
+Phase three: Based on the first value entered (must be less than or equal to 7)
+expects values for the third value, like a switch statement. 
+
+Phase four: Ensures that the factorial of the number entered
+is equal to 362880.
+
+Phase five: takes in a string of 6 characters. The ascii value of each character is 
+modulus divided by 15. Each value from 0 to 15 maps to a unique character 
+using a switch statement. These new characters must form the word 'titans'
+
+Phase six: Nested for loop that compares large numbers to each other to ensure they're in
+_______ order.
+
+000000000040124f <phase_5>:
+  40124f:	53                   	push   %rbx
+  401250:	48 83 ec 20          	sub    $0x20,%rsp
+  401254:	48 89 fb             	mov    %rdi,%rbx
+  401257:	e8 55 02 00 00       	callq  4014b1 <string_length>
+  40125c:	83 f8 06             	cmp    $0x6,%eax
+  40125f:	74 49                	je     4012aa <phase_5+0x5b>
+  401261:	e8 be 06 00 00       	callq  401924 <explode_bomb>
+  401266:	eb 42                	jmp    4012aa <phase_5+0x5b>
+  401268:	0f b6 0c 03          	movzbl (%rbx,%rax,1),%ecx
+Get character at index 1 of rbx (input string) move into ecx
+
+  40126c:	88 0c 24             	mov    %cl,(%rsp) 
+  40126f:	48 8b 14 24          	mov    (%rsp),%rdx
+  401273:	83 e2 0f             	and    $0xf,%edx
+mod edx by 16
+
+  401276:	0f b6 92 10 1e 40 00 	movzbl 0x401e10(%rdx),%edx
+401e10 = 4202000 
+
+EDX went from 11 to 110 'n'
+EDX went from 0 to 105 'i'
+EDX went from 11 to 110 'n'
+EDX went from 15 to 103 'g'
+EDX went from 6 to 119 'w'
+EDX went from 0 to 105 'i'
+
+  40127d:	88 54 04 10          	mov    %dl,0x10(%rsp,%rax,1)
+
+For loop until RAX = 5
+  401281:	48 83 c0 01          	add    $0x1,%rax
+  401285:	48 83 f8 06          	cmp    $0x6,%rax
+  401289:	75 dd                	jne    401268 <phase_5+0x19>
+
+
+  40128b:	c6 44 24 16 00       	movb   $0x0,0x16(%rsp)
+  401290:	be bf 1d 40 00       	mov    $0x401dbf,%esi
+ESI = titans
+
+  401295:	48 8d 7c 24 10       	lea    0x10(%rsp),%rdi
+RDI = string formed from function above: ebesfv
+
+  40129a:	e8 2f 02 00 00       	callq  4014ce <strings_not_equal>
+  40129f:	85 c0                	test   %eax,%eax
+  4012a1:	74 0f                	je     4012b2 <phase_5+0x63>
+  4012a3:	e8 7c 06 00 00       	callq  401924 <explode_bomb>
+  4012a8:	eb 08                	jmp    4012b2 <phase_5+0x63>
+  4012aa:	b8 00 00 00 00       	mov    $0x0,%eax
+  4012af:	90                   	nop
+  4012b0:	eb b6                	jmp    401268 <phase_5+0x19>
+  4012b2:	48 83 c4 20          	add    $0x20,%rsp
+  4012b6:	5b                   	pop    %rbx
+  4012b7:	c3                   	retq   
+
+
+00000000004010a8 <phase_3>:
+  4010a8:	48 83 ec 18          	sub    $0x18,%rsp
+  4010ac:	4c 8d 44 24 08       	lea    0x8(%rsp),%r8
+  4010b1:	48 8d 4c 24 07       	lea    0x7(%rsp),%rcx
+  4010b6:	48 8d 54 24 0c       	lea    0xc(%rsp),%rdx
+  4010bb:	be b6 1d 40 00       	mov    $0x401db6,%esi
+  4010c0:	b8 00 00 00 00       	mov    $0x0,%eax
+  4010c5:	e8 26 fb ff ff       	callq  400bf0 <__isoc99_sscanf@plt>
+  4010ca:	83 f8 02             	cmp    $0x2,%eax
+  4010cd:	7f 05                	jg     4010d4 <phase_3+0x2c>
+  4010cf:	e8 50 08 00 00       	callq  401924 <explode_bomb>
+
+
+  4010d4:	83 7c 24 0c 07       	cmpl   $0x7,0xc(%rsp)
+  less than or equal to 7
+
+  4010d9:	0f 87 f9 00 00 00    	ja     4011d8 <phase_3+0x130>
+if first value 7, explode bomb
+
+Third input:
+  4010df:	8b 44 24 0c          	mov    0xc(%rsp),%eax
+  4010e3:	ff 24 c5 d0 1d 40 00 	jmpq   *0x401dd0(,%rax,8)
+jump to 8 * rax + 0x401dd0
+
+  4010ea:	b8 6d 00 00 00       	mov    $0x6d,%eax
+  4010ef:	81 7c 24 08 fa 01 00 	cmpl   $0x1fa,0x8(%rsp)
+  4010f6:	00 
+  4010f7:	0f 84 e5 00 00 00    	je     4011e2 <phase_3+0x13a>
+  4010fd:	e8 22 08 00 00       	callq  401924 <explode_bomb>
+  401102:	b8 6d 00 00 00       	mov    $0x6d,%eax
+  401107:	e9 d6 00 00 00       	jmpq   4011e2 <phase_3+0x13a>
+  40110c:	b8 72 00 00 00       	mov    $0x72,%eax
+  
+  401111:	83 7c 24 08 6b       	cmpl   $0x6b,0x8(%rsp)
+  401116:	0f 84 c6 00 00 00    	je     4011e2 <phase_3+0x13a>
+  40111c:	e8 03 08 00 00       	callq  401924 <explode_bomb>
+  401121:	b8 72 00 00 00       	mov    $0x72,%eax
+  401126:	e9 b7 00 00 00       	jmpq   4011e2 <phase_3+0x13a>
+  40112b:	b8 73 00 00 00       	mov    $0x73,%eax
+  401130:	81 7c 24 08 78 03 00 	cmpl   $0x378,0x8(%rsp)
+  401137:	00 
+  401138:	0f 84 a4 00 00 00    	je     4011e2 <phase_3+0x13a>
+  40113e:	e8 e1 07 00 00       	callq  401924 <explode_bomb>
+  401143:	b8 73 00 00 00       	mov    $0x73,%eax
+  401148:	e9 95 00 00 00       	jmpq   4011e2 <phase_3+0x13a>
+  40114d:	b8 77 00 00 00       	mov    $0x77,%eax
+  401152:	81 7c 24 08 26 03 00 	cmpl   $0x326,0x8(%rsp)
+  401159:	00 
+  40115a:	0f 84 82 00 00 00    	je     4011e2 <phase_3+0x13a>
+  401160:	e8 bf 07 00 00       	callq  401924 <explode_bomb>
+  401165:	b8 77 00 00 00       	mov    $0x77,%eax
+  40116a:	eb 76                	jmp    4011e2 <phase_3+0x13a>
+  40116c:	b8 7a 00 00 00       	mov    $0x7a,%eax
+  401171:	81 7c 24 08 9f 00 00 	cmpl   $0x9f,0x8(%rsp)
+  401178:	00 
+  401179:	74 67                	je     4011e2 <phase_3+0x13a>
+  40117b:	e8 a4 07 00 00       	callq  401924 <explode_bomb>
+  401180:	b8 7a 00 00 00       	mov    $0x7a,%eax
+  401185:	eb 5b                	jmp    4011e2 <phase_3+0x13a>
+  401187:	b8 6b 00 00 00       	mov    $0x6b,%eax
+  40118c:	81 7c 24 08 61 01 00 	cmpl   $0x161,0x8(%rsp)
+  401193:	00 
+  401194:	74 4c                	je     4011e2 <phase_3+0x13a>
+  401196:	e8 89 07 00 00       	callq  401924 <explode_bomb>
+  40119b:	b8 6b 00 00 00       	mov    $0x6b,%eax
+  4011a0:	eb 40                	jmp    4011e2 <phase_3+0x13a>
+  4011a2:	b8 64 00 00 00       	mov    $0x64,%eax
+  4011a7:	81 7c 24 08 67 01 00 	cmpl   $0x167,0x8(%rsp)
+  4011ae:	00 
+  4011af:	74 31                	je     4011e2 <phase_3+0x13a>
+  4011b1:	e8 6e 07 00 00       	callq  401924 <explode_bomb>
+  4011b6:	b8 64 00 00 00       	mov    $0x64,%eax
+  4011bb:	eb 25                	jmp    4011e2 <phase_3+0x13a>
+  4011bd:	b8 6f 00 00 00       	mov    $0x6f,%eax
+  4011c2:	81 7c 24 08 42 01 00 	cmpl   $0x142,0x8(%rsp)
+  4011c9:	00 
+  4011ca:	74 16                	je     4011e2 <phase_3+0x13a>
+  4011cc:	e8 53 07 00 00       	callq  401924 <explode_bomb>
+  4011d1:	b8 6f 00 00 00       	mov    $0x6f,%eax
+  4011d6:	eb 0a                	jmp    4011e2 <phase_3+0x13a>
+  4011d8:	e8 47 07 00 00       	callq  401924 <explode_bomb>
+  4011dd:	b8 67 00 00 00       	mov    $0x67,%eax
+  4011e2:	3a 44 24 07          	cmp    0x7(%rsp),%al
+  4011e6:	74 05                	je     4011ed <phase_3+0x145>
+  4011e8:	e8 37 07 00 00       	callq  401924 <explode_bomb>
+  4011ed:	48 83 c4 18          	add    $0x18,%rsp
+  4011f1:	c3                   	retq   
+
+00000000004010a8 <phase_3>:
+  4010a8:	48 83 ec 18          	sub    $0x18,%rsp
+  4010ac:	4c 8d 44 24 08       	lea    0x8(%rsp),%r8
+  4010b1:	48 8d 4c 24 07       	lea    0x7(%rsp),%rcx
+  4010b6:	48 8d 54 24 0c       	lea    0xc(%rsp),%rdx
+  4010bb:	be b6 1d 40 00       	mov    $0x401db6,%esi
+  4010c0:	b8 00 00 00 00       	mov    $0x0,%eax
+  4010c5:	e8 26 fb ff ff       	callq  400bf0 <__isoc99_sscanf@plt>
+  4010ca:	83 f8 02             	cmp    $0x2,%eax
+  4010cd:	7f 05                	jg     4010d4 <phase_3+0x2c>
+  4010cf:	e8 50 08 00 00       	callq  401924 <explode_bomb>
+
+  4010d4:	83 7c 24 0c 07       	cmpl   $0x7,0xc(%rsp)
+  less than or equal to 7
+
+  4010d9:	0f 87 f9 00 00 00    	ja     4011d8 <phase_3+0x130>
+if first value > 7, explode bomb
+
+Third input:
+  4010df:	8b 44 24 0c          	mov    0xc(%rsp),%eax
+  4010e3:	ff 24 c5 d0 1d 40 00 	jmpq   *0x401dd0(,%rax,8)
+*Don't know what this does* 
+jump to 8 * rax + 0x401dd0?
+
+  4010ea:	b8 6d 00 00 00       	mov    $0x6d,%eax
+  4010ef:	81 7c 24 08 fa 01 00 	cmpl   $0x1fa,0x8(%rsp)
+  4010f6:	00 
+  4010f7:	0f 84 e5 00 00 00    	je     4011e2 <phase_3+0x13a>
+  4010fd:	e8 22 08 00 00       	callq  401924 <explode_bomb>
+  401102:	b8 6d 00 00 00       	mov    $0x6d,%eax
+  401107:	e9 d6 00 00 00       	jmpq   4011e2 <phase_3+0x13a>
+
+  JUMPS HERE FOR FIRST VALUE 1
+  40110c:	b8 72 00 00 00       	mov    $0x72,%eax
+  401111:	83 7c 24 08 6b       	cmpl   $0x6b,0x8(%rsp)
+  Compare character to dec 114 'r'
+
+  401116:	0f 84 c6 00 00 00    	je     4011e2 <phase_3+0x13a>
+  40111c:	e8 03 08 00 00       	callq  401924 <explode_bomb>
+  401121:	b8 72 00 00 00       	mov    $0x72,%eax
+  401126:	e9 b7 00 00 00       	jmpq   4011e2 <phase_3+0x13a>
+  40112b:	b8 73 00 00 00       	mov    $0x73,%eax
+  401130:	81 7c 24 08 78 03 00 	cmpl   $0x378,0x8(%rsp)
+  401137:	00 
+  401138:	0f 84 a4 00 00 00    	je     4011e2 <phase_3+0x13a>
+  40113e:	e8 e1 07 00 00       	callq  401924 <explode_bomb>
+  401143:	b8 73 00 00 00       	mov    $0x73,%eax
+  401148:	e9 95 00 00 00       	jmpq   4011e2 <phase_3+0x13a>
+  40114d:	b8 77 00 00 00       	mov    $0x77,%eax
+  401152:	81 7c 24 08 26 03 00 	cmpl   $0x326,0x8(%rsp)
+  401159:	00 
+  40115a:	0f 84 82 00 00 00    	je     4011e2 <phase_3+0x13a>
+  401160:	e8 bf 07 00 00       	callq  401924 <explode_bomb>
+  401165:	b8 77 00 00 00       	mov    $0x77,%eax
+  40116a:	eb 76                	jmp    4011e2 <phase_3+0x13a>
+  40116c:	b8 7a 00 00 00       	mov    $0x7a,%eax
+  401171:	81 7c 24 08 9f 00 00 	cmpl   $0x9f,0x8(%rsp)
+  401178:	00 
+  401179:	74 67                	je     4011e2 <phase_3+0x13a>
+  40117b:	e8 a4 07 00 00       	callq  401924 <explode_bomb>
+  401180:	b8 7a 00 00 00       	mov    $0x7a,%eax
+  401185:	eb 5b                	jmp    4011e2 <phase_3+0x13a>
+  401187:	b8 6b 00 00 00       	mov    $0x6b,%eax
+  40118c:	81 7c 24 08 61 01 00 	cmpl   $0x161,0x8(%rsp)
+  401193:	00 
+  401194:	74 4c                	je     4011e2 <phase_3+0x13a>
+  401196:	e8 89 07 00 00       	callq  401924 <explode_bomb>
+  40119b:	b8 6b 00 00 00       	mov    $0x6b,%eax
+  4011a0:	eb 40                	jmp    4011e2 <phase_3+0x13a>
+  4011a2:	b8 64 00 00 00       	mov    $0x64,%eax
+  4011a7:	81 7c 24 08 67 01 00 	cmpl   $0x167,0x8(%rsp)
+  4011ae:	00 
+  4011af:	74 31                	je     4011e2 <phase_3+0x13a>
+  4011b1:	e8 6e 07 00 00       	callq  401924 <explode_bomb>
+  4011b6:	b8 64 00 00 00       	mov    $0x64,%eax
+  4011bb:	eb 25                	jmp    4011e2 <phase_3+0x13a>
+
+  JUMPS TO HERE
+  4011bd:	b8 6f 00 00 00       	mov    $0x6f,%eax
+  4011c2:	81 7c 24 08 42 01 00 	cmpl   $0x142,0x8(%rsp)
+  
+  4011c9:	00 
+  4011ca:	74 16                	je     4011e2 <phase_3+0x13a>
+  4011cc:	e8 53 07 00 00       	callq  401924 <explode_bomb>
+  4011d1:	b8 6f 00 00 00       	mov    $0x6f,%eax
+  4011d6:	eb 0a                	jmp    4011e2 <phase_3+0x13a>
+  4011d8:	e8 47 07 00 00       	callq  401924 <explode_bomb>
+  4011dd:	b8 67 00 00 00       	mov    $0x67,%eax
+  4011e2:	3a 44 24 07          	cmp    0x7(%rsp),%al
+  4011e6:	74 05                	je     4011ed <phase_3+0x145>
+  4011e8:	e8 37 07 00 00       	callq  401924 <explode_bomb>
+  4011ed:	48 83 c4 18          	add    $0x18,%rsp
+  4011f1:	c3                   	retq
