@@ -1,0 +1,112 @@
+/*
+ * Alexander Zsikla (azsikl01)
+ * Partner: Ann Marie Burke (aburke04)
+ * registers.c
+ * COMP40 HW6
+ * Fall 2019
+ *
+ * Implementation of the UM registers, which includes functions for
+ * allocating/deallocating memory as well as for interactions between the
+ * client and the data structure
+ *
+ */
+
+#include <assert.h>
+#include <stdlib.h>
+
+#include "registers.h"
+#include "uarray.h"
+
+#define REGISTER_LEN 8
+
+/* Struct definition of a Register_T which 
+   contains an unboxed array of uint32_t's to store vals in registers */
+struct Registers_T {
+  uint32_t r0, r1, r2, r3, r4, r5, r6, r7;
+}; 
+
+/* Name: registers_new
+ * Input: N/A
+ * Output: A registers_T struct with values set to zero
+ * Does: Initializes a Registers_T struct with a UArray_T with 8 indices and
+ *       values set to zero
+ * Error: Asserts if memory is not allocated
+ */
+Registers_T registers_new()
+{
+        Registers_T r_new = malloc(sizeof(*r_new));
+        assert(r_new != NULL);
+
+        r_new->r0 = 0;
+	r_new->r1 = 0;
+	r_new->r2 = 0;
+	r_new->r3 = 0;
+	r_new->r4 = 0;
+	r_new->r5 = 0;
+	r_new->r6 = 0;
+	r_new->r7 = 0;
+
+        return r_new;
+}
+
+/* Name: registers_free
+ * Input: A pointer to a Registers_T struct
+ * Output: N/A
+ * Does: Frees memory associated with the struct
+ * Error: Asserts if struct is NULL
+ */
+void registers_free(Registers_T *r)
+{
+        assert(*r != NULL);
+        free(*r);
+}
+
+/* Name: registers_put
+ * Input: A registers_t struct, a register index, and a value
+ * Output: N/A
+ * Does: Inserts the value into the UArray in the Registers_T struct at index
+ *       num_register
+ * Error: Asserts if invalid register
+          Asserts if struct is NULL
+ */
+void registers_put(Registers_T r, uint32_t num_register, uint32_t value)
+{
+        assert(r != NULL);
+        assert(num_register < REGISTER_LEN);
+
+        switch (num_register) {
+	case 0: r->r0 = value;break;
+	case 1: r->r1 = value;break;
+	case 2: r->r2 = value;break;
+	case 3: r->r3 = value;break;
+	case 4: r->r4 = value;break;
+	case 5: r->r5 = value;break;
+	case 6: r->r6 = value;break;
+	case 7: r->r7 = value;
+	};
+}
+
+/* Name: registers_get
+ * Input: a registers_t struct and a register index
+ * Output: a uint32_t representing the value in the register
+ * Does: Gets the value at the index num_register in the UArray in the struct
+ *       and returns
+ * Error: Asserts if invalid register
+ *        Asserts if struct is NULL
+ */
+uint32_t registers_get(Registers_T r, uint32_t num_register)
+{
+        assert(r != NULL);
+        assert(num_register < REGISTER_LEN);
+
+        switch (num_register) {
+	case 0: return r->r0;break;
+	case 1: return r->r1;break;
+	case 2: return r->r2;break;
+	case 3: return r->r3;break;
+	case 4: return r->r4;break;
+	case 5: return r->r5;break;
+	case 6: return r->r6;break;
+	case 7: return r->r7;
+	};
+}

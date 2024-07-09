@@ -1,0 +1,116 @@
+==============================================================================
+CS40
+HW04 - arith
+Date: 2/9/22
+
+Group Names: Matt Torres (mtorre07), Alexander Chanis (achani01)
+
+==============================================================================
+Program Purpose:
+    This Program emulates a universal machine, and implements its memory 
+    structure, i/o device, registers, and 14 instructions. 
+
+==============================================================================
+Acknowledgements: 
+We would like to acknowledge Alan, who helped us solve a pointer error.
+
+==============================================================================
+Complile/Run instructions: 
+    To compile um: make um
+    to run um: ./um [filename.um]
+
+    To compile tests: make writetests
+    to write tests: ./writetests
+
+==============================================================================
+Implemented/Not implemented: 
+    Our UM, its memory system, registers, and 14 commands have all been 
+    implemented.
+
+    However, we have run into a number of issues that we were unable to 
+    resolve.
+
+    1: Occasionally, our program reads in an op code of 15 from a file, and
+    we were unable to figure out why. We believe that this only occurs
+    for the specific instructions Conditional Move (op 0) and Nand (op 6), but
+    perhaps this is the case for multiple different instructions that we 
+    have not discovered yet.
+
+    2: We are unsure whether allocated memory that was overwritten by load 
+    program is freed in halt. 
+
+    3: Our program does, therefore, not correctly run tests on cat.um
+    and midmark.um. 
+    
+
+==============================================================================
+Departures from design:
+    Instead of our original Sequence of Sequences structure for our memory
+    design, we went with a Sequence of UArrays.
+
+    Additionally, we abandoned the idea of over-modularizing our code
+    in favor of a 3-module approach, one module sets up the architecture
+    a second unpacks the instructions, and a third performs the instructions.
+
+==============================================================================
+Architecture:
+
+    main.c:
+        this module deploys the architecture of our UM, by creating the memory
+        sequence, registers UArray, and reads in each of the bitpacked
+        instructions from a .um file. 
+        This module knows very little about the implementation of the um
+        itself, except for how its architecture is structured.
+
+    bitpack.c:
+        This module understands how to unpack the instructions from the 
+        bitpacked instructions read in from main.c and passed to it from
+        read_instructions.c. 
+
+    read_instructions.c
+        this module is responsible for taking the bitpacked instructions passed
+        from main.c, and using the data to perform actions, which modify the 
+        data stored in the machine architecture created by main.c
+
+==============================================================================
+How long does it take our UM to execute 50 million instructions?
+        Our program took .008 seconds to excecute 4354 instructions of 
+        midmark.um. Therefore, we estimate it will take ~92 seconds to complete
+        50 million instructions (if it gets that far lol).
+
+==============================================================================
+UM Tests:
+    add.um - Performs a simple addition problem and prints the result. ensures
+                        that result is correct.
+    mult.um - Performs a simple multiplication problem and prints the result
+                        ensures that result is correct.
+    div.um - Performs a simple division and prints the result ensures that 
+                        result is correct.
+    cond.um - Performs a conditional move and prints the resulting value. 
+                        ensures that resulting value is expected.
+    halt.um - halts execution, manually check whether data is freed.
+    halt-verbose.um - halts before moving values into r1 and outputting them
+                        to ensure halt stops execution.
+    io.um - reads in a character from input and prints immediately to output.
+                        ensures that input and output devices are working 
+                        properly.
+    map.um - maps a segment and prints the address. ensures that address
+                        is properly stored
+    unmap.um - maps a segment, unmaps that segment, and outputs the 
+                        address of the segement that was unmapped.
+    nand.um - performs a nand operation, and prints the result. result should
+                        be 2 less than 2^32.
+    sload-map.um - loads values into registers, maps a segment, accesses
+                        a value in the loaded segment, prints that value,
+                        and halts.
+    loadp.um - loads a program segment from segment 1, prints new value from 
+                        segment 0 and halts.
+
+==============================================================================
+Approximation of Hours Spent:
+    We spent around 2 hours analyzing the assignment
+
+    We spent around 2 hours preparing our design
+
+    We spent around 20 hours coding and debugging after analyzing the problem
+    and preparing our design
