@@ -1,0 +1,466 @@
+===============================================================================
+CS40
+HW02 - iii
+Date: 2/13/22
+
+Group Names: Matt Torres (mtorre07), Kim Nguyen (knguye21)
+
+===============================================================================
+Program Purpose:
+• The purpose of the program is to practice defining and using 
+  interfaces and build an implementation for the Bit2 and UArray2 Data 
+  Structures. This program is made up of two separate and independent parts. 
+  The first part uses the UArray data strcture to build uarray2, which is 
+  then used to write the test program called sudoku, which functions as a 
+  predicate, and determines whether a sudoku is valid. 
+  The second implementation uses the Bit data structure to build
+  Bit2, which is then used to write the program unblackedges. Unblackedges
+  remove black edges from a scanned image.
+  There are five essential parts to the program:
+  (It is important to note that though the interface will be similar to
+  Hanson, the Hanson's implementation is not cloned. In other
+    words, our implementations is a client of Hanson's existing code.
+
+• Part A: Two-Dimensional, Polymorphic, Unboxed Arrays
+  The purpose of this part is to adapt the unboxed-array abstraction to
+  support two-dimensional arrays. The adaptation is called UArray2 and is
+  defined as the type UArray2_T. The adaptation needs to include the
+  following details for the UArray interface:
+    - UArray2_T will have a width and a height
+    - An element of a UArray2_T will be identified by two indices (i.e.
+      the column and the row). 
+    - The top left element is always indexed by the pair (0,0)
+    - Omit the resize and copy operations
+    - Must define two analogs of the Bit_map function:
+        • UArray2_map_row_major calls an apply function for each element in
+          the array. Column indices vary more rapidly than row indices.
+        • UArray2_map_col_major calls an apply function for each element in
+          the array. Row indices vary more rapidly than column indices
+
+• Part B: Two-Dimensional Arrays of Bits
+  The purpose of this part is to adapt the Bit abstraction to support
+  two-dimensional arrays. The adaptation is called Bit2 and is defined as
+  the type Bit2_T. It is important to note that in pbm, black is
+  represented as 1 and white is represented as 0. (This will be important
+  to when implementating the program unblackedges.) The adaptation needs
+  to include the following details:
+    - The interface for Bit2 should be very similar to the UArray2
+      interface
+    - The interface should include row-major and column-major mapping
+      operations
+    - Provide for checked runtime errors in the cases equivalent to those
+      allowed for UArray2
+
+• Part C: Using UArray2 to identify Sudoku solutions
+  Programs that function as predicates, which result in a true or false
+  indication. A program that exists with a code of 0 is treated as true, a
+  program that exits a non-zero if false so 0 means true. The goal is to
+  write the test program sudoku, which functions as a predicate. The
+  syntax of the sudoku command is:
+                            sudoku [filename]
+  where filename is the (optional) name of an input graymap file; if there
+  is no filename argument, input data is on standard input. The correct
+  input as a single portable graymap (i.e pgm) file. If input is not
+  correct, the program will terminate with a checked run-time error.
+  Otherwise, if the input is correct, the program must not print anything
+  BUT:
+    - If the graymap file represents a solved sudoku puzzle, the program
+      must exit with a code of 0
+    - otherwise it must exit with a code of 1
+  A solved sudoku puzzle is a 9x9 grayman with these properties:
+    - The maximum pixel intensity (aka the denomintor for scaled integers)
+      is nine
+    - No pixel has zero intensity
+    - In each row, no two pixels have the same intensity
+    - In each column, no two pixels have the same intensity
+    - If the 9x9 graymap is divided into 9 3x3 submaps, in each 3x3 submap,
+      no two pixels have the same intensity
+  If the pgm filename does not meet any of those properties, then the
+  program return 0, else 1. The implementation behind this uses UArray2.
+
+• Part D: Using Bit2 to remove black edges
+  The purpose of this part is to write a program unblackedges, which
+  removes black edges from a scanned image. The program takes at most one
+  argument:
+    - If an argument is given, it should be the name of a portable bitmap
+      file
+    - If no argument is given, unblackedges reads from standard input,
+      which should contain a portable bitmap
+    - If more than one argument is given, or if a portable bitmap is
+      promised but not delivered, or if the supplied bitmap has a width
+      and/or height of 0, unblackedges should either raise a checked
+      Runtime Error (using Hanson assertions/Exceptions) or halt with
+      some sort of error messages (on stderr) and terminate with a return
+      value of EXIT_FAILURE
+  The program should print, on standard output, a plain (P1) format
+  portable bitmap file which has width, height, and pixel values identical
+  to the original file except that all black edge pixels are changed to
+  white. Some things to note about bitmap of size w by h, a black edge
+  pixel is defined inductively as follows:
+    - A pixel is a black edge pixel if it black and if it appears in column
+      0, in row 0, in column w -1, or in row h - 1
+    - A pixel that appears in column c, row r is a black edge pixel if it
+      black, if c > 0 and c < w - 1, if r > 0 and r < h - 1, and any
+      neighboring pixel is a black edge pixel
+    - The neighboring pixels of the pixel in column c, row r are
+        • The pixel in column c - 1, row r
+        • The pixel in column c + 1, row r
+        • The pixel in column c, row r - 1
+        • The pixel in column c, row r + 1
+    The implementation for unblackedges uses Bit2.
+
+• Part E: Designing Function Contracts
+  The purpose of this part is to focus on function contracts which
+  comprised of two parts. the first is a brief description of what the
+  function does and the second part is listing the logical expectations
+  of function's input and output. This design process is practiced
+  throughout Part A - D for all functions.
+
+===============================================================================
+Compile/Run:
+
+• Remember to type "use comp40" into terminal
+  Simply type "make uarray2" to run the program for the interface and
+  implementation of part A. This is basically compiling and running
+  the uarray2.c and uarray2.h and return any errors if there are any.
+  The same applies for running compiling and running the program bit2:
+  "make bit2".
+  To compile and run sudoku, type in "make sudoku".
+  To compile and run unblackedges, type in "make unblackedges".
+• When running into segmentation faults or abort or any other issues,
+  run the command "valgrind" to see more details about where the issue
+  is at
+• Something we did was "valgrind ./uarray2 > [output_filename]"
+        - This allows us to run valgrind and check for segmentation faults.
+          We also have the result be output to a file so that we can check
+          the results to see if they are what we expected. With this, we can
+          efficient find out what the issue is. Not only that
+          but we can link our .o file to correct_useuarray2 and use the
+          command -diff to determine if there are any difference in
+          our results compared to the expected results provided by the
+          source code.
+
+===============================================================================
+Acknowledgements:
+
+• We would like to acknowledge Mary-Joy for helping us debug why we
+  had a segmentation fault and why our UArray2 was not printing out the
+  expected values. Originally, we thought the problem was in UArray2_new(),
+  but we checked with Mary-Joy and she said it was good. The problem was
+  in how we mixed up the row and col for UArray2_map_col_major() and
+  UArray2_map_row_major() resulting in the row and col values to not match
+  up. Thank you!! Then she definitely did hint that the valgrind errors
+  we were getting was because we were not freeing memory from UArray2,
+  which thank you! That saved us from 10,000 bytes lost.
+
+• Acknowledgements to Alan for helping us understand how incomplete
+  structures and function pointers work. He definitely gave us a useful
+  advice which was to consider how Hanson implements the interface, client,
+  and implementation phase. This definitely helped us rethink our
+  implementation plan for uarray2 and bit2, but it did make implementations
+  for sudoku and unblackedges much easier. He also explained to us about
+  the abstraction of keeping the struct out of the .h file.
+
+• We would like to acknowledge Max who helped explain to us what the
+  apply function does, especially the parameters and how it was used in
+  useuarray2.c. This definitely allowed us to fix the bug regarding
+  row-major and col-major. We also asked him clarification questions
+  regarding the pointer to p1, a pointer to p2, and a pointer to cl. We
+  were most confused about p2 and so when we asked if p2 was a pointer to
+  the last indices in the sudoku that is defined by the last row of the
+  last column, we found out that was not p2's case. It was actually a
+  pointer to the array that we were using. Very important because then we
+  knew how to go about implementing sudoku, especially for the function
+  load_elements(). Thank you!!! We had a whole misunderstanding the whole
+  time of p2.
+
+• Acknowledgements to Alex. Alex clarified some confusion that we had
+  regarding the the uarray2 and sudoku since we used uarray2 to
+  implement sudoku. He assisted us with debugging some errors regarding
+  void pointers and function pointers, which was a huge help, because we
+  were able to figure out how to go about implementing sudoku solutions.
+  yay!!!
+
+===============================================================================
+Implemented:
+  We believe that we have implemented all of the required parts described in
+  the spec from Part A - E. For Part A (Two-Dimensional, Polymorphic,
+  Unboxed Arrays) we implemented the unboxed array abstraction to build a
+  two-dimensional arrays called UArray2, which defined the type in UArray2_T.
+  In our struct T2, we have a width and height as the struct member because
+  it assisted in identifying an element of a UArray2_T. We also defined
+  two analogs of the Bit_map function, UArray2_map_col_major and
+  UArray2_map_row_major. The key to implementing uaaray2 is to consider
+  setting up an implementation in which the elements of the 2D
+  array are in one-to-one correspondence with elements of more
+  one-dimensional UArray_T's. which is why we decided to represent a
+  UArray2_T as an array of UArray_T's, which is referred to the struct
+  member of T2 to consist of UArray_T buf (stores the array of UArray2_T).
+  After implementation, we linked our uarray2.h and uarray2.c with the
+  .o resulting from useuarray2.c and made sure that the result we got was
+  the same as the result of correct_useuarray2. Any differences, we used
+  the -diff command to find where the problem is at and then print
+  statements to debug the issue. The interface for part B
+  (two-dimensional arrays of bits) is very similar to UArray2 interface.
+  The only different is that for the Bit interface, we cannot use at but
+  instead, used put and get. We included the row-major and column-major
+  mapping operations. We also provided checked runtime errors in the cases
+  equivalent to UArray2. We had to keep in mind that black is represented
+  as 1 and white is reprsented as 0 for a pbm file, which is important
+  for when writing the program unblackedges. For part c (use UArray2 to
+  identify sudoku solutions), we wrote the program sudoku, which
+  functions as a predicate. We made sure that we defined the correct input
+  as a single portable graymap. If the input is not correct, the program
+  will terminate with a checked runtime error. Otherwise, if the input is
+  correct, the program myst not print anything but if the graymap file
+  represents a solved sudoku puzzle, the program exit with a code of 0,
+  otherwise it exits with a code of 1. We had to make sure that when the
+  program  returns 0 that the graymap file followed the sudoku properties
+  of a 9x9 graymap. To test, we created out own pgm file of a completed file
+  and then tested edge cases where it should return 1. For example,
+  the sudoku puzzle violated a sudoku property or there is an empty
+  slot in the sudoku. We use UArray2 to obtain the element at a certain
+  spot and the row-major and column-major functions to check that the
+  graymap follows the sudoku properties. For part D (Using Bit2 to remove
+  black edges), we made sure that the program takes at most one argument
+  and that it prints a plain P1 portable bitmap file identical to the
+  original file except that all black edge pixels are changed to white.
+  We created a small testing file and then tested it with the bigger file
+  provided. When we tested with the bigger file, we ran into an issue
+  of stack overflow, so that was when we decided to implement the same
+  algorithm, but uses stack to do a recursive call. For Part E
+  (Designing Function Contracts), we made sure that we followed the two 
+  parts of what makes a good function contract and then implemented the
+  concept to each and every functions that we implemented. We made sure
+  to have a concise, yet brief description of what each function does and
+    also to list the logical expectations of each function's input and output.
+
+===============================================================================
+Not Implemented:
+  We believe that we have implemented everything on the spec to the best
+  of our ability. We annotated the specs and went over it at the end to
+  make sure that we have implemented all the required features, especially
+  when raising Checked Runtime Errors.
+
+===============================================================================
+Data Structures:
+• Unboxed Dynamic Arrays (UArray)
+    - We utilize the UArray ADT described by Hanson exports functions that
+      allocate and deallocate gynamic arrays, access them with bound
+      checks, and expand or contract them to hold more or fewer elements.
+      The UArray is presented a pointer to a struct in our implementation.
+      The ADTs are used in implementing uarray2.c since we are adapting
+      the unboxed-array abstraction to support two-dimensional arrays.
+      Our adaptation is called UArray2 and defined the type UArray2_T.
+      Our implementations and interface for uarray2 is later used to
+      identify sudoku solutions. The struct is defined in the
+      implementation function so that the client cannot access the struct
+      members. An advtange to using this data strcuture is the
+      time efficiency for clients to access the memory.
+
+• Hanson's Bit Vector
+    - Bit Vector is used to build our two-dimensional arrays of bits. We
+      implemented some of the functions described by the interface of
+      the bit vector (i.e bit vector ADTs). For example,
+      Bit2_new(int width, int height), Bit2_free(B2 *set2),
+      int Bit2_width(B2 set2), and so on. There are function contracts
+      which described the functionality of the function and how bit Was
+      implemented. Once the interfacr and implementation works as expected,
+      we use these functions to write a program called unblackedges,
+      which removes black edges from a scannned image. The reason we do
+      this is because when removing the edges, we have to take into
+      consider of how the black edge pixels work. For example, we want to
+      create a Bit2_T pgm and so we use Bit2_new() to create a 2D array
+      of bits, and so on. The adt new() creates a new vector of a certain
+      length and set all bits to zero. From here, the context is that bit
+      can help us store 0 and 1. Which in part b, is described that the
+      pbm file we will work with in unblackedges has black represented as
+      1 and white represented as 0. Also using this is efficient because
+      the program prints a plain P1 portable bitmap file which has width,
+      height, and pixel values identical to the original file except that
+      all black edges pizels changed to white.
+
+• Hanson's Stack
+    - We used the Hanson's stack data structure to perform a recursive
+      algorithm such that there would not be an issue of a stack overflow
+      when reading in a very big file. How we implemented it is basically,
+      every time there is a black pixel, you pop it’s coordinates onto
+      the stack. While the stack isn’t empty, you pop an element off the
+      stack and check it’s neighbors to see if they are black, and so on.
+
+===============================================================================
+Files:
+• bit2.c
+    - Implementation of the functions defined in the header file bit2.h,
+      in addition to the struct B2 being included. The struct is placed
+      in bit2.c because we do not want the client to access the struct and
+      change the values. This file uses Hanson Bit data structure. It
+      includes row-major and column-major mapping operations.
+
+• bit2.h
+    - The interface for Bit2 which consists of functions similar to
+      UArray2 interface. However, because it is not possible to create a
+      pointer to a single bit, we cannot use the at idea, so we used
+      put and get. We implemented functions that would be then be used to
+      write a program for unblackedges.c.
+
+• sudoku.c
+    - The purpose of this file is to write the test program sudoku, which
+      functions as a predicate. UArray2 was used to identify sudoku
+      solutions by following the sudoku properties. If any of the sudoku
+      properties are violated, then the program returns 1 else if the
+      graymap file represents a solved sudoku puzzle then the program
+      exit with a code of 0. There are functions that checks each row,
+      each columns, and each submaps to determine if the sudoku properties
+      are violated. There is a read_file() which reads in a file as a
+      pointer. The main function is included which defines how many
+      arguments the program take, which is 1 because it is reading in
+      one file at most as pgm.
+
+• uarray2.c
+    - The purpose of this file is to adapt the unboxed-array abstraction
+      to support two-dimensional arrays. The adaptation is called
+      UArray2 and defined as the type UArray2_T. The adaptation includes
+      specific behavior as described in the purpose of the prgram. In order
+      for the elements of the two-dimensional array to be in one-to-one
+      correspondence with elements of one or more one-dimensional
+      UArray_T’s, the implementation is done by representing a UArray2_T
+      as an array of UArray_T’s.
+
+• uarray2.h
+    - The interface of uarray2 which consists of some functions defined
+      by Hanson's UArray. The struct T2 is in the implementation file
+      and not the header because we do not want the client to be able
+      to change the values in the struct. Therefore. we provided functions
+      that would allow them to create a new UArray2, to free the memory
+      allocated, to determine the width of the array, and so on.
+      These functions and struct is important to when implementing
+      sudoku.c, which uses UArray2 to identify Sudoku solutions.
+
+• unblackedges.c
+    - This file uses Bit2 to remove black edges from a scanned image. The
+      program takes at most one argument and print a plain P1 format
+      portable bitmap file (on standard output) which has width, height,
+      and pixel values identical to the original file except that all
+      black edge pixels are changed to white. The implementation is done
+      recursively using Hanson's stack data structure. The reason is
+      because with recursion itself, there will be a stack overflow when
+      testing with a very very big file.
+
+• usebit2.c
+    - the source to a C program that uses a Bit2 implementation.
+      Specifically, it does a #include "bit2.h" and calls most of the
+      methods in the interface.
+
+• useuarray2.c
+    - the source to a C program that uses a UArray2 implementation.
+      Specifically, it does a #include "uarray2.h" and calls most of the
+      methods in the interface.
+
+• sudoku.pgm
+    - 9x9 sudoku consisting of 9 3x3 submaps pgm testing file we created
+      with sudoku solutions. This was used to test part c implementation.
+      Changes were made to test that the outputs were expected and abide
+      by the sudoku properties. For example, we made a change in the submap
+      of the last three rows of the last columns where we took out a number
+      and replaced it with a duplicate, so the submap had a number that
+      occurred twice, which should result in 0 -> success. This was our
+      main testing file for sudoku.c.
+
+• Makefile
+    - Modify and compile files into object files and executable files.
+      Modify to include any additional files needed for the program to run.
+      It is important to consider adding test files and other neccessary
+      documentations
+
+• README
+    - A file that contains my partner and I (mtorre07 and kngye21)'s
+      reflections on the hw02 iii and a log of how we programmed and
+      tested our programs. We also included acknowledgements, identified
+      what has been correctly implemented and what has not. An
+      approximation of the time spent is added to the bottom. The README is
+      meant so that in the future, when we go back to read our program,
+      we know the purpose and what data structures were used and issues
+      that we ran into.
+
+===============================================================================
+Testing:
+• This assignment allowed us to experience creating and implementing an
+  interface. In order to make sure that the interface we created is at
+  least reasonably close to the expectations, we are given some tools to
+  help us understand what is expected and to do some simple testing with
+  the results. We are given two files relating to UArray2s:
+    - useuarray2.c
+    - correct_useuarray2
+  After we built our uarray2.h and uarray2.c, we linked them with the .o
+  resulting from useuarray2.c, and ran the result. The result that we got
+  should produce the same output as correct_useuarray2. We used the
+  command -dff to see if there were any difference between the results
+  we got from our implementations versus the results from
+  correct_useuarray2. We outputted our results into a file called
+  correctuarray.txt where we can further examine the result and the issues.
+  When we got to implementing row-major() and col-major(), we had some
+  confusion on how the function works. We looked up how they worked and
+  wrote some code and tested it. When we printed out the results, we got
+  the result that we expected, but when we compared it to
+  correct_useuarray2, all the indices printed, none of which are correct.
+  As a result, -diff showed us that all the results were not the same.
+  So what could be the issue? We did some print statements and realized that
+  the row indices were not correct. We did some print statements, but
+  could not figure out what the issue was. We decided to go to office hour
+  to ask the TA to clarify on how the UArray2_map_col_major and
+  UArray2_map_row_major worked, especially the apply function. From there,
+  we fixed our two functions. What we did was we created a void pointer for
+  p1, which fixed the issue we had. The print statements and valgrind
+  definitely did help us, given that we did not fully understand
+  how the apply function worked.
+  Another component of testing was using pnmrdr reader. What we did was to
+  test UArray2 mapping functions, we wrote simple programs that read
+  and wrote a graymap by calling the UArray2_map_row_major() function
+  with an argument that calls pnmrdr_get from the Pnmrdr interface. We
+  compared results with diff -bu to see if we got the same output as
+  pnmtopnm -plain. We read with UArray2_map_col_major() and wrote with
+  UArray2_map_row_major, to see if we got the duplicate effect of
+  pamflip -transpose. Any differences or bugs, we printed out statements
+  to determine where the issue was at and from there debugged to fix our
+  issues.
+  Then after implementing Bit2, we tested the functions like how we did
+  with UArray2. A problem that we did run into was an error that said
+  our struct B was not defined or initialized, which was really weird
+  because the implementation should be the same as UArray2. We printed
+  out statements but the problem all revolved how the struct was not
+  defined. We tried changing the name of the struct, and it was not until
+  later that when we named the struct B2 that the program compiled.
+  For part c where we had to identify sudoku solutions, what we did to test
+  was we created a pgm file that was 9x9 and had all the solutions. We used
+  this file along with print statements while we were implementing to make
+  sure that sudoku properties were followed. We did run into a problem
+  when we tried to figure out what p1, p2, and cl represented given how
+  they were implemented in useuarray2.c. We ran into a couple of errors
+  regarding load_elements(). However, we came to realize that p2 did not
+  represent the pointer to the last indices of the last row and of the last
+  column. p2 was the pointer to the array/bit that we are editing.
+  From there, any issues were solved by printing statements and
+  compare it to what we were expecting the results to be. There were also a
+  lot of valgrind errors regarding bytes being lost in load_submaps() but
+  we were able to fix the issue by testing it with print statements.
+  For the unblackedges, we tested it using a file that we created called
+  test1.pbm. Any errors and valgrinds resulted in many print statements
+  to figure out the issue. Then to figure ensure that we implemented
+  unblackedges correctly, we tested it with bigger pbm files provided
+  in /comp/40/bin/images/bitonal. Very big file. We originally
+  implemented unblackedges recursively, however we came across the issue
+  of having a stack overflow. yay. From what we know, we decided to
+  implement another Hanson data structure called Seq_T and perform
+  the same algorithm recursively on stack. We ran into valgrind
+  issues of abort, and so the file we used to test is the very big file
+  provided.
+
+===============================================================================
+Hours Spent Approximation:
+• We spent approximately 31 hours on HW02 given all the
+  segmentation faults, errors, and valgrind that we had to figure out.
+  Testing took majority of our time in addition to figuring out where and
+  what the issues were. We spent the most time on trying to understand
+  how the apply function works and having to go to office hours to ask
+  clarifying questions.

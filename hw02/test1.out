@@ -1,0 +1,146 @@
+row: 0 col: 0 bit: 1
+added below neighbor
+row: 0 col: 1 bit: 1
+added below neighbor
+row: 0 col: 2 bit: 1
+added below neighbor
+row: 0 col: 3 bit: 1
+added right neighbor
+added below neighbor
+row: 0 col: 4 bit: 1
+added below neighbor
+row: 0 col: 5 bit: 1
+added below neighbor
+row: 0 col: 6 bit: 1
+row: 1 col: 3 bit: 1
+row: 4 col: 0 bit: 1
+row: 4 col: 6 bit: 1
+row: 6 col: 6 bit: 1
+added above neighbor
+row: 6 col: 5 bit: 1
+added above neighbor
+row: 6 col: 4 bit: 1
+added above neighbor
+row: 6 col: 3 bit: 1
+row: 8 col: 6 bit: 1
+added above neighbor
+row: 8 col: 5 bit: 1
+added above neighbor
+row: 8 col: 4 bit: 1
+added above neighbor
+row: 8 col: 3 bit: 1
+added above neighbor
+row: 8 col: 2 bit: 1
+added right neighbor
+row: 9 col: 2 bit: 1
+added right neighbor
+row: 10 col: 2 bit: 1
+added right neighbor
+added below neighbor
+row: 10 col: 3 bit: 1
+row: 11 col: 2 bit: 1
+added right neighbor
+row: 12 col: 2 bit: 1
+added below neighbor
+row: 12 col: 3 bit: 1
+added below neighbor
+row: 12 col: 4 bit: 1
+added below neighbor
+row: 12 col: 5 bit: 1
+added below neighbor
+row: 12 col: 6 bit: 1
+row: 18 col: 0 bit: 1
+added below neighbor
+row: 18 col: 1 bit: 1
+added right neighbor
+added below neighbor
+row: 18 col: 2 bit: 1
+added below neighbor
+row: 18 col: 3 bit: 1
+added below neighbor
+row: 18 col: 4 bit: 1
+added below neighbor
+row: 18 col: 5 bit: 1
+added below neighbor
+row: 18 col: 6 bit: 1
+row: 19 col: 1 bit: 1
+row: 24 col: 0 bit: 1
+added below neighbor
+row: 24 col: 1 bit: 1
+added left neighbor
+added below neighbor
+row: 24 col: 2 bit: 1
+added below neighbor
+row: 24 col: 3 bit: 1
+added below neighbor
+row: 24 col: 4 bit: 1
+added below neighbor
+row: 24 col: 5 bit: 1
+added below neighbor
+row: 24 col: 6 bit: 1
+row: 23 col: 1 bit: 1
+row: 26 col: 6 bit: 1
+added right neighbor
+added above neighbor
+row: 26 col: 5 bit: 1
+row: 27 col: 6 bit: 1
+added right neighbor
+row: 28 col: 6 bit: 1
+added right neighbor
+row: 29 col: 6 bit: 1
+added above neighbor
+row: 29 col: 5 bit: 1
+added above neighbor
+row: 29 col: 4 bit: 1
+added left neighbor
+added above neighbor
+row: 29 col: 3 bit: 1
+added above neighbor
+row: 29 col: 2 bit: 1
+added left neighbor
+row: 28 col: 2 bit: 1
+added left neighbor
+row: 27 col: 2 bit: 1
+added left neighbor
+row: 26 col: 2 bit: 1
+row: 28 col: 4 bit: 1
+added left neighbor
+row: 27 col: 4 bit: 1
+row: 32 col: 6 bit: 1
+added above neighbor
+row: 32 col: 5 bit: 1
+added above neighbor
+row: 32 col: 4 bit: 1
+added above neighbor
+row: 32 col: 3 bit: 1
+added left neighbor
+added right neighbor
+added above neighbor
+row: 32 col: 2 bit: 1
+added above neighbor
+row: 32 col: 1 bit: 1
+row: 33 col: 3 bit: 1
+row: 31 col: 3 bit: 1
+row: 36 col: 6 bit: 1
+added above neighbor
+row: 36 col: 5 bit: 1
+added above neighbor
+row: 36 col: 4 bit: 1
+added above neighbor
+row: 36 col: 3 bit: 1
+added left neighbor
+added right neighbor
+added above neighbor
+row: 36 col: 2 bit: 1
+added above neighbor
+row: 36 col: 1 bit: 1
+row: 37 col: 3 bit: 1
+row: 35 col: 3 bit: 1
+P1 40 7
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+0 0 0 1 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+0 0 1 0 0 0 0 0 0 0 0 0 0 0 1 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
