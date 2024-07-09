@@ -1,0 +1,23 @@
+# 
+#                        urt0.ums
+#                   Author: Matt Torres
+#
+#   File Description: sets temp registers, zero registers and 
+#   creates stack held by r2
+#
+#   Constant registers: 
+#   r0 is 0
+#   r2 is stack pointer
+#   
+
+.section init
+    .temps r6, r7, r3
+    .zero r0
+
+.section stk
+    .space 100000
+    endstack: 
+
+.section init
+        r0 := 0
+        r2 := endstack

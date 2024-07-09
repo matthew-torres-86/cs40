@@ -1,0 +1,143 @@
+# 
+#                        printd.ums
+#                   Author: Matt Torres
+#
+#   File Description: the printing module, which prints the stack recursively
+#   Constant registers: 
+#   r0 is 0
+#   r2 is stack pointer
+#
+.section init
+    .temps r6, r7, r4
+    .zero r0
+
+.section text
+    #
+    # print_start: ensures there is at least one element in stack r2. stores 
+    # value originally stored in r3 (number of elements on stack). continues to 
+    # print stack. 
+    # registers:
+    # r3 now stores index of current element in the stack to be printed
+    # 
+    print_start:
+        if(r3 == 0) goto waiting
+        push r3 on stack r2
+        r3 := r2 +1
+    
+    #
+    # print_stack: prints each element in the stack by iterating r3. determines 
+    # if element to be printed is 0, negative, the max negative, or positive
+    # and performs the necessary action for each case
+    # registers:
+    # r1 now stores current element in the stack to be printed
+    # 
+    print_stack: 
+        r1 := m[r0][r3]
+        output ">>> "
+        if(r1 == 0) goto print_0
+        if(r1 <s 0) goto print_neg
+        r5 := -2147483648
+        if(r1 == r5) goto print_max_neg
+
+    #
+    # print_pos: prints positive numbers. Checks if there are multiple
+    # digits in the current element.
+    # registers:
+    # r1 stores current element in the stack to be printed
+    # 
+    print_pos:
+        if(r1 >s 9) goto multi_digit_print
+        r1 := r1 + '0' 
+        output r1
+        goto end_print
+
+    #
+    # print_0: prints 0
+    #
+    print_0:
+        output "0"
+        goto end_print
+
+    #
+    # print_neg: prints "-", then continues to print the number as if
+    # it were positive
+    #
+    print_neg:
+        output "-"
+        r1 := -r1
+        goto print_pos
+
+    #
+    # print_max_neg: prints the maximum negative number, which can be 
+    # problematic
+    #
+    print_max_neg:
+        output "-2147483648"
+        goto end_print
+
+    #
+    # end_print: called at the end of printing each element in the stack. 
+    # checks if more elements in the stack remain
+    # registers:
+    # r3 is incremented
+    # r4 temporarily stores total number of elements in stack
+    # r5 temporarily stores last element in the stack to ensure it has not
+    # yet been reached
+    # 
+    end_print:
+        output "\n"
+        r3 := r3 +1
+        r4 := m[r0][r2]
+        r5 := r2 + r4
+        if (r3 <=s r5) goto print_stack
+
+    #
+    # final_print: called at the end of printing the last element in the stack. 
+    # returns to waiting state
+    # registers:
+    # r3 is retrieved, now stores total number of elements in stack
+    # 
+    final_print:
+        pop r3 off stack r2
+        goto waiting
+    
+    #
+    # multi_digit_print: called when number to print has more than one digit. 
+    # gets each digit recursively and pushes onto stack
+    # once finished, calls print_digits
+    # registers:
+    # r1 stores value of current stack element to be printed. r1 > 9
+    # r4 temporarily stores value of the current digit
+    # r5 represents the multiple of 10 just greater than current digit.
+    # multiplied by 10 each iteration.
+    # 
+    multi_digit_print:
+        r5 := 10
+    recurse_digits:
+        r4 := r1 / r5
+        r4 := r4 * r5
+        r4 := r1 - r4 
+        r1 := r1 - r4
+        push r4 on stack r2
+        if(r1 == 0) goto print_digits
+        r5 := r5 * 10
+        goto recurse_digits
+    
+    #
+    # print_digits: pops each digit from multi_digit_print off stack,
+    # and outputs
+    # registers:
+    # r1 stores value of the current digit. r1 <= 9
+    # r5 represents the multiple of 10 just greater than current digit.
+    # multiplied by 10 each iteration. 
+    # 
+    print_digits:
+        if(r5== 1) goto end_print
+        pop r1 off stack r2
+        
+        r5 := r5 / 10
+        r1 := r1 / r5
+        r1 := r1 + '0'
+        
+        output r1
+        goto print_digits

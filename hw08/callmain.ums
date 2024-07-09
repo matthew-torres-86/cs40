@@ -1,0 +1,11 @@
+# 
+#                        callmain.ums
+#                   Author: Matt Torres
+#
+#   File Description: calls main
+#
+.section init
+    start:
+        .temps r6, r7, r4 
+        .zero r0
+        goto main linking r1

@@ -1,0 +1,348 @@
+# 
+#                        calc40.ums
+#                   Author: Matt Torres
+#
+#   File Description: the calculator module, which takes user input and 
+#   performs calculations. Knows what each user input character means and
+#   how to perform calculations. Relies on print module to output data
+#   Constant registers: 
+#   r0 is 0
+#   r2 is stack pointer
+#   r3 is number of elements in stack
+#
+.section init
+    .zero r0
+    .temps r4, r6, r7
+    r1 := 0
+    r3 := 0
+    
+    jumptable:
+        .space 256
+
+    #
+    # populate_jumptable: fills each value in jumptable with input_error
+    # registers:
+    # r1 is current location along jumptable
+    # r5 is current location on segment 0
+    #
+    populate_jumptable:
+        r5 := jumptable + r1
+        m[r0][r5] := input_error
+        r1 := r1 + 1
+        if(r1 <s 256) goto populate_jumptable
+
+    #
+    # fill_jumptable: overwrites values in jumptable to achieve desired 
+    # functionality
+    #
+    fill_jumptable:
+        m[r0][jumptable + '0'] := entering
+        m[r0][jumptable + '1'] := entering
+        m[r0][jumptable + '2'] := entering
+        m[r0][jumptable + '3'] := entering
+        m[r0][jumptable + '4'] := entering
+        m[r0][jumptable + '5'] := entering
+        m[r0][jumptable + '6'] := entering
+        m[r0][jumptable + '7'] := entering
+        m[r0][jumptable + '8'] := entering
+        m[r0][jumptable + '9'] := entering
+        m[r0][jumptable + ' '] := waiting
+        m[r0][jumptable + '\n'] := print_start
+        m[r0][jumptable + '+'] := add
+        m[r0][jumptable + '-'] := sub
+        m[r0][jumptable + '*'] := mul
+        m[r0][jumptable + '/'] := div
+        m[r0][jumptable + '|'] := or
+        m[r0][jumptable + '&'] := and
+        m[r0][jumptable + 'c'] := change
+        m[r0][jumptable + '~'] := not
+        m[r0][jumptable + 's'] := swap
+        m[r0][jumptable + 'd'] := duplicate
+        m[r0][jumptable + 'p'] := pop_val
+        m[r0][jumptable + 'z'] := remove_all
+    
+.section text # Code for calculator itself
+    #
+    # waiting: inputs value from user
+    # registers:
+    # r1 is current character from user input
+    #
+    waiting:
+        r1 := input()
+        if(r1 == -1) goto finish
+    
+    #
+    # waiting_w_character: goes to position in jumptable associated with 
+    # character input by user
+    # r1 is vhar input by user
+    # r5 is current location on segment 0
+    #
+    waiting_w_char:
+        r5 := jumptable + r1
+        r5 := m[r0][r5]
+        goto r5
+
+    #
+    # entering: called when user inputs number, pushes numerical value on stack
+    #
+    entering:
+        r1 := r1 - '0'
+        push r1 on stack r2
+        r3 := r3 + 1
+
+    #
+    # continue: called for the input value directly after a numerial digit. 
+    # Determines if the value is a continuation of the numeral before. performs 
+    # operation or pushes new number on stack
+    # registers: 
+    # r1 is input character
+    # r5 is digit directly before input character (if r1 is a number too)
+    #
+    continue:
+        r1 := input()
+        if(r1 == -1) goto finish
+        if(r1 <s '0') goto waiting_w_char
+        if(r1 >s '9') goto waiting_w_char
+        r1 := r1 - '0'
+        pop r5 off stack r2
+        r5 := r5 * 10
+        r1 := r5 + r1
+        push r1 on stack r2
+        goto continue
+    
+    #
+    # input_error: called when user inputs non-recognized character
+    # r1 is character input
+    #
+    input_error:
+        output "Unknown character \'"
+        output r1
+        output "\'\n"
+        goto waiting
+
+    #
+    # the checks: ensure that the required amount of values to perform
+    # desired calculations are on the stack.
+    #
+    check_1:
+        if (r3 >=s 1) goto r1
+        output "Stack underflow---expected at least 1 element\n"
+        goto waiting
+    check_2:
+        if (r3 >=s 2) goto r1
+        output "Stack underflow---expected at least 2 elements\n"
+        goto waiting
+
+    #
+    # add: called by user input "+"
+    # registers:
+    # r1: second value in addition
+    # r5: first value in addition
+    #
+    add:
+        goto check_2 linking r1
+        pop r1 off stack r2
+        pop r5 off stack r2
+        r1 := r1 + r5
+        push r1 on stack r2 
+        r3 := r3 - 1
+        goto waiting
+
+    #
+    # sub: called by user input "-"
+    # registers:
+    # r1: first value in subtraction
+    # r5: fisecond value in subtraction
+    #
+    sub:
+        goto check_2 linking r1
+        pop r5 off stack r2
+        pop r1 off stack r2
+        r1 := r1 - r5
+        push r1 on stack r2
+        r3 := r3 - 1
+        goto waiting
+
+    #
+    # mul: called by user input "*"
+    # registers:
+    # r1: second value in multiplication
+    # r5: first value in multiplication
+    #
+    mul:
+        goto check_2 linking r1
+        pop r1 off stack r2
+        pop r5 off stack r2
+        r1 := r1 * r5
+        push r1 on stack r2 
+        r3 := r3 - 1
+        goto waiting
+
+    #
+    # div: called by user input "/"
+    # registers:
+    # r1: first value in division
+    # r5: second value in division
+    #
+    div:
+        goto check_2 linking r1
+        pop r5 off stack r2
+        if(r5 == 0) goto div_0
+        pop r1 off stack r2
+        if(r1 <s 0) goto div_r1_neg
+        if(r5 <s 0) goto div_r5_neg
+        r1 := r1 / r5
+        push r1 on stack r2 
+        r3 := r3 - 1
+        goto waiting
+
+    #
+    # div special cases: computes division by 0, division by negative numbers
+    # registers:
+    # r1: second value in addition
+    # r5: first value in addition
+    #
+    div_0:
+        output "Division by zero\n"
+        push r5 on stack r2
+        goto waiting
+    div_r1_neg:
+        if(r5 <s 0) goto div_both_neg
+        r1 := -r1
+        r1 := r1 / r5
+        r1 := -r1
+        push r1 on stack r2 
+        r3 := r3 - 1
+        goto waiting
+    div_r5_neg:
+        r5 := -r5
+        r1 := r1 / r5
+        r1 := -r1
+        push r1 on stack r2 
+        r3 := r3 - 1
+        goto waiting
+    div_both_neg:
+        r1 := -r1
+        r5 := -r5
+        r1 := r1 / r5
+        push r1 on stack r2 
+        r3 := r3 - 1
+        goto waiting
+    
+    #
+    # or: called by user input "|"
+    # registers:
+    # r1: second value in logical comparision
+    # r5: first value in logical comparison
+    #
+    or:
+        goto check_2 linking r1
+        pop r5 off stack r2
+        pop r1 off stack r2
+        r1 := r1 | r5
+        push r1 on stack r2 
+        r3 := r3 - 1
+        goto waiting
+
+    #
+    # and: called by user input "&"
+    # registers:
+    # r1: first value in logical comparision
+    # r5: second value in logical comparison
+    #    
+    and:
+        goto check_2 linking r1
+        pop r5 off stack r2
+        pop r1 off stack r2
+        r1 := r1 & r5
+        push r1 on stack r2 
+        r3 := r3 - 1
+        goto waiting
+
+    #
+    # or: called by user input "c." changes sign of r5
+    # registers:
+    # r5: value to be sign changed
+    #
+    change:
+        goto check_1 linking r1
+        pop r5 off stack r2
+        r5 := -r5
+        push r5 on stack r2
+        goto waiting
+
+    #
+    # not: called by user input "~"
+    # registers:
+    # r5: value to be reversed bitwise
+    #
+    not:
+        goto check_1 linking r1
+        pop r5 off stack r2
+        r5 := ~r5
+        push r5 on stack r2
+        goto waiting
+
+    #
+    # swap: called by user input "s"
+    # registers:
+    # r1, r5: values to be swapped
+    #
+    swap:
+        goto check_2 linking r1
+        pop r5 off stack r2
+        pop r1 off stack r2
+        push r5 on stack r2 
+        push r1 on stack r2 
+        goto waiting
+
+    #
+    # duplicate: called by user input "d"
+    # duplicates last value in stack
+    # registers:
+    # r5: value to be duplicated
+    #
+    duplicate:
+        goto check_1 linking r1
+        r5 := m[r0][r2]
+        push r5 on stack r2 
+        r3 := r3 + 1
+        goto waiting
+    
+    #
+    # pop: called by user input "p"
+    # pops last value off of stack
+    #
+    pop_val:
+        goto check_1 linking r1
+        pop stack r2
+        r3 := r3 - 1
+        goto waiting
+
+    #
+    # remove_all: called by user input "z"
+    # removes all values in stack
+    #
+    remove_all:
+        if (r3 == 0) goto waiting
+        pop stack r2
+        r3 := r3 - 1
+        goto remove_all
+    
+    main:
+        # Storing values from non-volatile registers
+        push r1 on stack r2
+        push r3 on stack r2
+        push r4 on stack r2
+
+        goto waiting
+
+        # Retrieving values to restore non-volatile registers
+        pop r4 off stack r2
+        pop r3 off stack r2
+        pop r5 off stack r2  # return address
+        r1 := 0
+        goto r5
+    finish: 
+        halt
+

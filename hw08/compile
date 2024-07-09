@@ -1,0 +1,3 @@
+#! /bin/sh
+echo $(umasm -o calc40.um urt0.ums calc40.ums printd.ums callmain.ums) 
+# echo $(um calc40.um)

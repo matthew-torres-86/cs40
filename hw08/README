@@ -1,0 +1,53 @@
+********************************************************************************
+*                                                                              *
+*                              Homework 8: UMASM                               *
+*                              Author: Matt Torres                             *
+*                                  May 2nd 2022                                *
+*                                                                              *
+********************************************************************************
+
+Partner: 
+Due to a series of converging deadlines, I was unable to find a partner
+in time, and would have felt bad working with a partner due to my limited
+availability
+
+Acknowledgements:
+I did not receive any help on this assignment from TA's or other Peers
+
+Implemented:
+Mostly everything is correctly implemented and to spec. 
+Program usually passes calc40-test with 1000 to 2000 operators
+Occaisionally, output differs or results in a thrown exception from um.c
+
+Calling Convention:
+The calling convention is followed, however r4 and r5 differ. r4 is used as an extra temporary, thus r5 is used as a non-volatile general purpose register.
+
+Print module implementation:
+The print module is implemented using a series of loops that add each digit of a multi-digit number to the stack and then pop them off and print them. 
+
+Value stack representation:
+The value stack is represented using careful maintenence of the call stack, and a value stored in r3 which counts the number of values on the value stack.
+
+Sections:
+    urt0.ums: 
+        init: sets temp registers and zero register, initializes r0 and r2.
+        stk: creates space for the stack pointed to by r2
+    
+    printd.ums: 
+        init: sets temp registers and zero register
+        text: the code for the print module
+
+    calc.ums:
+        init: sets temp registers and zero register
+        text: the code for the calculator module
+
+    callmain.ums:
+        init: sets temp registers and zero register, calls main
+
+Time spent:
+    I spent about 2 hours analyzing the assigment
+
+    I spent about 6 hours writing assembly code
+
+    I spent about 5 hours debugging my calculator
+
