@@ -1,0 +1,439 @@
+===============================================================================
+CS40
+HW01 - filesofpix
+Date: 2/3/21
+
+Group Names: Matt Torres (mtorre07), Kim Nguyen (knguye21)
+
+===============================================================================
+Program Purpose:
+    Our job is to restore the original image information of a corrupted "plain"
+    pgm (magic number: P2) and output the result as a “raw” pgm (magic number:
+    P5). It is important to understand the hacked in our "plain" pgm file in
+    order to decipher what the issues are. The employed hack works on a given
+    pgm file in three passes.
+    • First, the header is deleted, including the magic number, the width and
+      height, and the maximum gray value (maxval). All that remains is the
+      image raster.
+    • Second, fake image rows are injected throughout the raster. So a pgm
+      image that had a specified height of 50 rows, may now have a raster that
+      exceeds 50 rows.
+    • Third, the whitespace in each row is replaced with a random infusion of
+      non-digit bytes. That is, bytes that do not encode a digit in ASCII.
+    So a row that appeared as:
+        10 6 6 10 11
+    might become:
+        a10b6c6d10e11fgh
+    Suffice to say, the resulting, corrupted images cannot be read by the
+    original reader module, Pnmrdr. However, we do know four more things about
+    the employed hack - oversights born of laziness, or simply an inferior
+    CS program:
+    • The original images included a single \n character at the end of each row
+      of the image raster. This formatting has not been tampered with.
+    • The original images all employed a Maxval of 255, which has not been
+      altered. (Only 0 to 255 should appear, no negative values or any values
+      greater than 255)
+    • The original images were all at least two pixels wide and two pixels high
+    • The original image rows (as opposed to the injected, duplicated rows)
+      have all been infused with the same sequence of non-digit bytes.
+      So the following rows:
+            a10b6c6d10e11fgh
+            a11b11c9d6ef6gh
+            ab10c9d6e11fgh9
+      are all original rows of the image because they employ the same infusion
+      sequence of ”abcdefgh”. Injected rows each have a unique infusion sequence
+    With these information in mind, our goal is to figure out how to uncorrupt
+    the corrupted "plain" pgm (magic number: P2) and then convert it to the
+    "raw" pgm (magic number: P5).
+
+===============================================================================
+Compile/Run:
+     • Remember to type "use comp40" into terminal
+     Simply type "make filesofpix" to run the program overall which included
+     the header hile for restoration. This will compile the program and
+     return any errors if there are any. In order to run the program on
+     corrupted pgm, type in "./filesofpix [filename]". That will output the
+     results in terminal. However, to prevent the terminal looking really
+     cluttered, run the program and have the output be a newly created file.
+     For example, "./filesofpix [filename1] > [filename2.out]" and this will
+     allow us to know the result is in the .out file.
+     • When running into segmentation faults or abort or any other issues,
+       run the command "valgrind" to see more details about where the issue
+       is at
+     • Something we did was "valgrind ./filesofpix [testing_filename] >
+       [output_filename]"
+            - This allows us to run valgrind and check for segmentation faults.
+              We also have the result be output to a file so that we can check
+              the original testing file to the output to see if the results are
+              expected. With this, we can efficient find out what the issue is
+              like why our program is not the last line when it converts to raw
+     • To run the images, type the command "display [filename].pgm" and the 
+       image should display
+
+===============================================================================
+Acknowledgements:
+    There was an issue of passing by value instead of passing by reference.
+    When testing restore_whitespace(), we ran into an uncaught exception,
+    which then told us the issue was in removeat() and remove_injections.
+    After printing out the sequences to check and compare, we did not get
+    the expected values when using our small testing file. The result we got
+    was that the first line of the file was removed, but not the fourth line
+    of the file which should have been also been removed. We asked Elliot for
+    a clarifying question on what could be giving us an uncaught exception,
+    he pointed out that we did not pass by reference. From there, we had an
+    idea of how to fix the problem.
+     • First, for most of the helper functions in restoration.c, we made the
+       parameter of the struct pic mypic (which was what we originally had -
+       pass by value) to be struct pic *mypic (to pass by reference since
+       we are changing the sequences). With that change, we had to change all
+       of the dot notation to an arrow operator since myic is now a pointer.
+     • Update the height of the file. When we implemented remove_injections(),
+       we did not decrement the height of the file, which resulted in the
+       error.
+    Once we had these down, we tested remove_injections() and r
+    restore_whitespace(), which compiled and gave us the expected output
+    from our small testing file (test1.txt). yay! Thank you Elliot!
+
+    We would like to acknowledge Sruthi, Alan, Lexi for helping us debug an
+    issue with readaline.c. When we tried to test print_pic() and called it,
+    we ran into a problem of not having enough memory since we did allocate
+    memory of 1000 in readaline for when reading in each lines. To fix this
+    issue, we changed the memory in the array for the variable line from 1000
+    to 10000. We originally tested readline and our helper functions in
+    restoration.c with a very small text file that we made ourselves. However,
+    when we decided to transition to the bigger files provided in imgs, we ran
+    into issue of not having enough memory to read in the file. In order to
+    address that issue, we fixed readaline.c. However, we came upon another
+    horrendous issue that we could not figure out for hours. The following
+    issues was what happened when we ran the corrupted test files provided with
+    our code and using diff to compare it to the original corrupted files:
+        • There was a decrese in the number of lines in the output file but we
+          did not know what caused it
+        • When we tried to diff and compare the individual lines of files, we
+          noticed an issue of the new line being inconsistent.
+        • Sometimes, the readaline inserted the proper new line
+    After many hours of printing statements and testing all the provided files,
+    we went to office hour. Sruthi asked us to walk through our readaline
+    function, which seemed to be correct. She made suggestions to change the
+    do-while loop to a while loop such as while(tocontinue) .. but that
+    resulted in all non-digit characters to be removed (yay) but left us with
+    negative values. Not good! Then Sruthi and Lexi suggested us to change
+    where we did our conditional statement for when reaching the end of a line
+    of a file, which then resulted in no negative values (yay) but gave
+    values greater than 255 (equally bad but wow they were huge numbers). Alan
+    then suggested to comment out "break" which we had placed for safekeeping.
+    Compiled and ran the professor-corrupt.pgm and no negative or big values
+    appeared, just numbers between 0 and 255, as we expected. YAY!
+
+    We would like to acknowledge Lexi for clarifying some of our confusion. We
+    were confused about to convert from plain to raw since we were not sure
+    if there should be white spaces between the numbers. She checked in with
+    how we planned to implement convert_to_raw() and gave us some meaningful
+    feedbacks.
+
+    Acknowledgements to Miles, who helped us debug an issue we had regarding
+    printing out lines as strings. We got some advice about how to tackle the
+    situation at hand, which is to try printing out each character, instead
+    of printing strings. (Definitely helped us). Since we had some issues
+    with width since the header would output the incorrect width, Miles
+    suggested us to do a print statement of the width and height to check
+    if it is what we expect. From there, we were pretty confident that we could
+    debug the issues we had at hand to convert P2 to P5.
+
+    Acknowledgements to Alan and Bridget who gave us advice on how to approach
+    some of the issues we had. For example, we wanted to store sequences that
+    were identical. However, in the test2.txt file, we had four sequences
+    where line 0, 2, and 3 were identical. In other words, the sequences should
+    be stored in rem_line, but the problem was that only line 0 and 2 were
+    stored. Where did the third line go? I tried to debug this issue but
+    could find the issue in restoration. Bridget suggested if it had to do
+    with reading new line in readaline. (Great Advice!) When we fixed it,
+    the third line got added (yay!). After a while we ran into another huge
+    bug where the correct sequence got added to rem_line in the smaller
+    test2.txt, but in the huge imgs files provided. So we wondered why an
+    incorrect sequence was being added to rem_line. We were stuck
+    on what the problem could be, but then Alan suggested that we change the
+    order of our small testing file to decipher the issue more easily. OMG!
+    Thank you Alan! The issue was that the first sequence was comparing with
+    itself and then declaring that it is the sequence. With that, we fixed the
+    issue in compare(), which solved our issue. From there, we were able to
+    debug most of our bugs and then display the pgms. yay!
+
+===============================================================================
+Implemented:
+  • readaline() has been implemented and works (yay!). We have read the spec
+    for the specific behaviors of readaline() and fully implemented them. We
+    had problems with readaline while implementing restoration, but all the
+    issues are addressed so we can confidently say that readline() works and
+    can take in any size file. (We even tested the Declarat of Independence).
+
+  • restoration.c (We had helper functions to assist in restoration
+    implementation)
+        • int compare(const char* str1, const char* str2)
+            - helper function for compare_sequences()
+              uses Hanson Atom to compare two strings taking in two character
+              arrays to compare. If str1 or str2 is NULL, then return 0.
+              If str1 and str2 are equal to each other, then return 1.
+            - returns the size of line, contents of line
+
+        • char *compare_sequences(struct pic *mypic)
+            - compares all of the char arrays in the Seq "mypic->sequences"
+            - takes a reference to pic struct
+            - returns the repeated char sequence in the Seq "mypic->sequence"
+
+        • void determine_sequence(struct pic *mypic)
+            - determines repeated char sequence in Seq sequences and stores in
+              the struct by using the helper function compare_sequences()
+            - takes a reference to pic struct
+            - returns the repeated char string in the Seq "mypic->sequence"
+
+        • void remove_injections(struct pic *mypic)
+            - creates new Seq with only the non-injected lines by using the
+              helper function compare()
+            - takes a reference to pic struct
+            - returns none, but stores data in struct
+
+        • void restore_whitespace(struct pic *mypic)
+            - replaces existing non-digit characters with whitespace
+            - takes a reference to pic struct
+            - returns none, but stores data in struct
+
+        • char *restore_header(struct pic *mypic)
+            - builds the header
+            - takes a reference to pic struct
+            - returns the header string
+
+        • void convert_to_raw(struct pic *mypic)
+            - converts de-corrupted P2 image to P5
+            - takes a reference to pic struct
+            - returns none, but stores data in struct
+
+        • int get_full_int(char *line, int *index)
+            - creates new Seq with only the non-injected lines
+            - takes a reference to pic struct
+            - returns none, but stores data in struct
+
+        • void free_pic(struct pic *mypic)
+            - frees heap-allocated memory
+            - takes a reference to pic struct
+            - returns none
+
+        • void read_file(FILE *inputfd)
+            - called from main (filesofpix), decrypts and prints images
+            - opens input file
+            - returns none
+
+        WITH ALL THESE HELPER FUNCTIONS, THE CORRUPTED P2 IMAGE CONVERTED TO
+        P5 SHOULD DISPLAY BEAUTIFUL IMAGES!!!!
+
+===============================================================================
+Not Implemented:
+• We ran into a problem when we tried to display turing.pgm. It does not show
+  up. However, all of the other pgms displayed an image (Yay! because
+  we were close to calling it done but did not give up) We tried to debug it
+  with print statements and checking the testing file, but we can't seem to
+  figure out what it is. Valgrind has been a huge help to us telling us
+  where the issues are at and where the memory leaks are at, but it did not
+  tell us why only turning-corrupt did not display? We have considered if it
+  was because of readaline() thinking that it may not have been able to read
+  in any file size, but it worked for the other files.
+
+• There are some valgrind errors left but there are no memory leaks(close? yay?
+  It was overwhelming a couple days ago when we realized that the huge
+  corrupted testing files did not work when our program worked on the small
+  testing file that we made. The valgrind errors, segmentation faults, and
+  memory leaks results in up to 90,000 errors, but after many hours of sitting,
+  thinking, and office hour, we were able to cut it down.
+===============================================================================
+Data Structures:
+
+• The data structure that we decided to use is the Hanson sequence data
+  structure. A sequence holds N values associated with the integer indices zero
+  through N–1 when N is positive. An empty sequence holds no values, which is
+  efficient for when we need to create new sequences to store each lines read.
+  Like arrays, values in a sequence may be accessed by indexing by using the
+  Seq_get(T seq, int i).  They can also be added to or removed from either end
+  of a sequence. Sequences expand automatically as necessary to accommodate
+  their contents. Values are pointers. (Very important to note!!)
+  By using Hanson sequence data structure, we created a struct member variables
+  such as Seq_T lines (which stores the lines read in from the file) and
+  Seq_T sequences (which stores sequences of non-digit characters). This is
+  nice to use between different files that we have tested have different
+  number of lines, and so Hanson sequence automatically expands to accommodate
+  the file sizes read in and how many sequences of non-digit characters there
+  are. This means that we do not have to create a variable that keeps track of
+  how many sequences there are and us having to consistently expand it.
+  The C interfaces and implementations of Hanson sequence data structure has
+  been utilized throughout the assignment in order to achieve the purpose
+  of the assignment.
+
+===============================================================================
+Files:
+
+•  readaline.c
+    - The purpose of this function is to read a single line of input from file
+      inputfd, which is presumed to have. Important behavior of readaline
+      includes:
+        • Each invocation of readaline retrieves the next unread line in the
+          file. The characters comprising the line are placed into a contiguous
+          array of bytes, and *datapp is set to the address of of the first byte
+        • readaline returns the number of bytes in the line.
+        • The array of bytes is allocated by readaline using malloc. It is the
+          responsibility of the caller of readaline to free the array using free
+        • readaline leaves the file seek pointer at the first (i.e., unread)
+        character of the following line (if any) or at EOF
+        • If readaline is called when there are no more lines to be read, it
+          sets *datapp to NULL and returns 0.
+        • readaline terminates with a Checked Runtime Error
+
+• restoration.c
+    - The purpose of which is to restore a corrupted “plain” pgm file to a
+      functional “raw” pgm file. Important behavior of restoration
+      includes:
+        • We implemented helper functions such as compare(), compare_sequences()
+          , determine_sequence(), removeat(), and so on in order to assist in
+          implementing convert_to_raw()
+        • The program writes the reconstructed image to standard output as a
+          “raw” pgm
+
+• restoration.h
+    - The header interface of the struct called pic which consists of members
+      of the struct that are useful in implementation. The members consist of
+      the magic_num, wdith, height, maxval, a pointer to repeated_sequence, a
+      sequence of type Seq_T called lines, a sequence of type Seq_T called
+      sequences, a sequence of type Seq_T called rem_line, and a character
+      pointer called repeated_sequence. The description of what each member
+      variable does is commented in the header file and the purpose of the
+      assignment. The header file includes functions declarations such as the
+      helper functions (determine_sequence(),remove_injections(), and so on
+      appropriate to restore the corrupted "plain" pgm file to a "raw" pgm file.
+
+• Makefile
+    - modify and compile files into object files and executable files.
+      Modify to include any additional files needed for the program to run.
+      It is important to consider adding test files and other neccessary
+      documentations
+
+
+• README
+    - A file that contains my partner and I (mtorre07 and kngye21)'s reflections
+      on the hw01 filesofpix and a log of how we programmed and debug code
+      We also included acknowledgements, identified what has been correctly
+      implemented and what has not. An approximation of the time spent is
+      added to the bottom.
+
+===============================================================================
+Testing:
+
+• In restoraction.c, we implemented read_file() and filesofpix.c (this is our
+  main) and tested it with a test1.txt to check that the file could be opened
+  successfully
+• Something to note is that while implementing our functions, we used the
+  test1.txt file that we made to test it. Originally, this was what the
+  test1.txt file looked like: (four identical lines)
+            g1c2d3d\n
+            g1c2d3d\n
+            g1c2d3d\n
+            g1c2d3d\n
+  The purpose of this was to see if we successfully implemented readaline().
+  Then we changed the file of four lines to: (2 lines of the same non-digit
+  sequences, and 2 lines of unique non-digit sequences)
+            g1c2d3d\n
+            a2c3d4d\n
+            a3c4d5d\n
+            b4c5d6d\n
+  This was to make sure that when implementing the helper functions in
+  restoration.c, the sequences are retreived and then the sequences are
+  compared. For those with unique non-digit sequences, then they to be removed.
+  Then at some point we decided to rewrite the test1.txt file where we take
+  out "\n" since the provided files did not have that. That resulted in some
+  issues in readline() since it was implemented to read "\n". We were to fix the
+  issue and test it with the following test1.txt:
+            g1c2d3d
+            a2c3d4d
+            a3c4d5d
+            b4c5d6d
+
+ • Another thing to note during the implementation and testing phase was that
+   originally in our design plan, we planned to use the Hanson list structure.
+   However, we did find quite a bit of difficulty when trying to implement
+   Hanson list so when we went through the various Hanson data strutcture of
+   C interfaces and implementations and decided to make the transition from
+   Hanson list to Hanson sequence. The reason we made this change is that
+   pointers can be added or removed from the low end (index 0) or the high end
+   (index N−1) and the sequence expand automatically -> THIS is IMPORTANT for
+   us because the maxval of a line can be very very long, which when trying to
+   keep track of the non-digit characters, it is more efficient for the
+   sequence to expand automatically, rather than us having to update the length
+   each time a character is added to the list.
+ • When majority of the helper functions worked and gave us the expected
+   results when testing with test1.txt, we decided to test with the bigger
+   files provided by the assigment using the pgm in imgs before moving on to
+   convert_to_raw(). When we ran all of the files, we noticed that majority,
+   we believe, of the characters were still there. However, the number of lines
+   in the outfile pile was different than the original file. Was that because
+   program was able to remove the injected lines? But how could that be if the
+   non-digit characters still existed? Using diff command, we noticed that
+   the file we compiled with our code had much less lines than the original
+   pgm file, except all of the lines were there and every character was there.
+   Nothing was removed, but condensed (using the find command, we copy and
+   pasted the lines). Then we decided to test using the Declaration of
+   Independence. We copied the file online and then ran it with our code. What
+   we found was that all the spaces between paragraphs were gone, resulting in
+   the file to be one line! Given this, we assumed that it was an issue in
+   readaline(). We printed out statements to check the loops and
+   conditional statements, but could not find the issue as to why the file was
+   all one line and why the non-digit characters did not get replaced with
+   whitespaces. With office hour, a TA suggested us to replace our do-while loop
+   with a regular while loop taking in tocontinue, and it worked! Then
+   when we compiled and ran professor-corrupt.pgm and output it to a file to
+   compare, all the non-digit characters were replaced with whitespaces. The
+   issue then was there were characters consisting of negative values
+   (not great). To that, we fixed the conditional statement of how the program
+   take care of new line and what it keeps account of and what it returns. In
+   doing so, the negative values were gone (yay!) but then we got some values
+   greater than 255 (equally bad but that's ok). With some print statements
+   and debugging and a little assistance from the TA, we uncommented "break"
+   statement in readline and got values from 0 to 255. (yay!)
+ • When we have issues with testing the bigger corrupted files, we would test
+   with the small file test1.txt to decipher where the issue is. However, when
+   we do apply the changes to bigger files like computer-corrupt.pgm and
+   professor-corrupt.pgm, there ends up being more issues.
+   (Valgrind was definitely our friend!!)
+   A problem we ran into was the height not being printed accurately, given
+   that the injected lines are removed. For example, with computer-corrupt.pgm,
+   the height printed would be 173 while the file shows to be 253. Thats means
+   the height is not being accurately updated somewhere? Debugging included a
+   lot of print statements and use of valgrind and running the program into an
+   output file to see if we got the expected results.
+ • At convert_to_raw() from P2 to P5, we decided to have the int values of P2
+   be converted to char for P5, but the char will be stored as int in memory.
+   However, we are running through an issue of when we store the int value 10,
+   it is supposed to return a char for P5, except it does not. What it returns
+   is a new line, which based on the ASCII table, the decimal value 10 returns
+   a new line. The issue with that is that we need the char which we believe
+   should return "nl" not actually creating a new line. We decided to test it on
+   the smaller and bigger corrupted files. We have tried to debug this issue
+   for hours, but cannot seem to figure out how to go about the problem,
+   because the actual new line actually kept showing up. (TA office hour!)
+   We were told that when printing out the lines as a string is tricky
+   because we would have to consider null terminates which we did not realize.
+   The suggestion we got to was to fix our code bit by bit and instead of
+   printing the lines as strings, print it character by character instead.
+   (Thank you Miles) More testing is done on the computer-corrupt files.
+ • When it came down to debugging restoration, we created a new testing file
+   called test2.txt which originally consisted of 4 lines where 2 lines had
+   identical non-digit character sequences. The file was changed throughout to
+   test various cases. The file really helped us debug the issue when we
+   notice issues with testing the bigger file. It really helped to PRINT and
+   test with the smaller file since we were able to pin point the issue
+   more easily compared to the bigger file. While testing and debugging, and
+   coding, we would use both the small file test2.txt and the bigger files
+   prvided by imgs such as comp-corrupt.
+
+===============================================================================
+Hours Spent Approximation:
+    Matt and I spent approximately 42 hours on hw01 given all the segmentation
+    faults, errors, and valgrind that we had to figure out. Testing took
+    majority of our time in addition to figuring out where and what the issues
+    were. We can say the last three days were the roughest.
