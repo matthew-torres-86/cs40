@@ -1,0 +1,222 @@
+==============================================================================
+CS40
+HW04 - arith
+Date: 2/9/22
+
+Group Names: Matt Torres (mtorre07), Kim Nguyen (knguye21)
+
+==============================================================================
+Program Purpose:
+    The primary purpose of this assignment is to gain experience working with
+    low level machine representations of numbers. Write a program that takes
+    a PPM image and compresses the image by transforming color spaces and
+    discarding information not easily seen by the human eye
+    (this is lossy compression). This assignment allows us to gain practice
+    packing and unpacking binary data that puts multiple small values
+    (both signed and unsigned) into a single larger integer
+    (often referred to as a “word”). There is a a challenge problem that
+    will test the modularity of our code. The main components of are listed:
+
+    • Write and test conversions between different representations of color
+    image data: first a bijection between RGB and component video (Y /PR/PB)
+    color spaces and then a discrete cosine transform.
+
+    • Write functions to put a small integer into a word or extract a small
+    integer from a word. We're working with both signed and unsigned integers.
+==============================================================================
+Architecture:
+
+    40image.c
+        Implementations of program 40image which takes the option -c
+        (for compress) or -d (for decompress) and also the name of the
+        file to compress or decompress. Opens and reads the file, else
+        if not appropriate number of arguments, or cannot open the file, then
+        print our appropriate std error message. includes compress40.h and
+        pnm.h.
+
+    compress40.c
+        Implementations for compress40.h interface and helper functions that
+        assists in compression and decompression. There are constant variables
+        declared that are used in math formulas in the helper functions. There
+        are typedef struct that holds variable used relevant in compressing
+        and decompressing. The implementation section explains more details
+        of how this file is implemented.
+
+    a2plain.c
+        Used the provided implementation solution in order to create a new
+        array and copy the new values to the new array using map-major()
+        and use row-major() to compress the pixels into a new array.
+        map_row_major is used to handle mapping pixels and for
+        decompression, handle with packed and unpacked arrays. The
+        functions implemented are used in compress40 in order to create new
+        arrays, return a value at a certain index, and so on in order
+        to compress and decompress the image.
+
+    a2blocked.c
+        Defined a private version of each function in A2Methods_T in order
+        to create a new array and use map-major() in order to handle discrete
+        cosine transformation and allocate an array to put the compressed
+        image.
+
+    bitpack.c
+        Consists of functions that are implemented to manipulate bit fields
+        with a 64 bit (8 byte) value word. The signed functions and the
+        unsigned functions independently, in such a way that neither is aware
+        of the other. There are three type of functions that we implemented,
+        each for signed and unsigned values. Bitpack_fitss() and Bitpack_fitsu
+        are implemented to determine if an integer can be representated in
+        k bits. In case, we are considering k unsigned bits and k signed bits.
+        Bitpack_gets() and Bitpack_getu() extract values from a word. For
+        Bitpack_getu(), the values are extracted to be unsigned and
+        Bitpack_gets() extracts the value to be signed. By programming
+        convention, we use only unsigned types to represent words. Each
+        function extracts a field from a word given the width of the field
+        and the location of the field’s least significant bit. We also
+        checked run-time error to call Bitpack getu or Bitpack gets
+        with a width w that does not satisfy 0 ≤ w ≤ 64. Similarly, we
+        also checked run-time error to call Bitpack getu or Bitpack gets with
+        a width w and lsb that do not satisfy w + lsb ≤ 64. Then for
+        Bitpack_news() and Bitpack_newu(), these functions return a new word
+        which is identical to the original word, except that the field of
+        width width with the least significant but at lsb will have been
+        replaced by a width-bit representation of value. We did a checked
+        run-time error to call Bitpack newu or Bitpack news with a width w
+        that does not satisfy 0 ≤ w ≤ 64. Similarly, we also checked run-time
+        error to call Bitpack newu or Bitpack news with a width w and lsb
+        that do not satisfy w + lsb ≤ 64. If Bitpack news is given a value
+        that does not fit in width signed bits, it must raise the
+        exception Bitpack Overflow. Similarly, if Bitpack newu is given a
+        value that does not fit in width unsigned bits, it must also raise
+        the exception. What this file does collective is packing
+        and unpacking integers using signed functions and unsigned functions.
+
+    ppmdiff.c
+        A diff program that can compare two images to get a quantitative
+        estimate of how similar they are. Later, this is used in testing to
+        see how good our compressor/decompressor is at preserving the
+        input image given the output written by 40image.
+
+==============================================================================
+Acknowledgments:
+    Acknowledgments to Elliot, who helped us with our valgrind error and
+    issue with quantization. Originally, we were confused on how to
+    go about it and so he asked us guiding questions that gave us an
+    idea on how to go about it. A problem that we ran into was a
+    segmentation fault for a couple of hours, where valgrind pointed the
+    issue to be in compress40 of where storing our new image. Elliot
+    suggested that it might have to do with us not allocating enough
+    space and so we looked at the issue and later found that we malloc the
+    wrong size using the wrong struct. Thank you !!
+
+    We would love to acknowledge Zach, who amazingly explained to us how
+    two's complement work and left some advices for how we can
+    implement two's complement. We did run into some confusion and so
+    he did a great job answering our questions conceptually. yay!!
+
+    Acknowledgments to Alex for encouraging us and suggesting us where
+    some of our issues could be, that resulted in a pixelated image. He
+    suggested that we save the code resulting in 10% error and to retrace
+    our steps and make sure that the alignment is correct. The problem
+    with why the image was so pixelated was not clear since the program
+    successfully compressed and decompressed with no valgrind errors.
+    With that, we decided to work each step of compress and decompress,
+    doing U-shape testing. thank you for the advice!
+
+    Acknowledgments to Alan who assisted us in debugging a valgrind error
+    that we have been getting for the past two days regarding map-major()
+    that we used to pack our 2-by-2 block of pixels. We decided to change
+     to a floating-point representation, and transform each pixel from RGB
+     color space into component video color space (Y /PB/PR) and make sure
+     that the compress and decompress works as expected with a low % error.
+     However we got a 20% error and so Alan was able to help us with the
+     issue. thank you!!!!! (The error that we got regarding to map_major was
+     an error that we got before but we were able to code around it but
+     Alan helped us directly figure out the problem). Something else was
+     that our picture was pixelated and when we asked him, he asked us if
+     the image originally printed out pixelated after compression and
+     decompression, which we said yes. So he suggested us to consider
+     rotating the pixels, say by 90% for example. With that we checked the
+     math and that map-major() is working the way we expected, but was not
+     sure as to why the image was so pixelated. We did a lot of print
+     statements and the issue is later to be described and assisted by
+     another TA.
+
+    We would like to acknowledge Gustavo for helping us identify a huge
+    part of our problem - why is our lossy image so pixelated? (10% error)?
+    He asked us to walk through how we packed each 2-by-2 block into a
+    32-bit word. We used the solution provided by the course for map-major,
+    thinking that the blocks are mapped by row-major and the 2-by-2 blocks of
+    pixels are mapped by row-major. NO, IT WAS NOT! (yes, we were shook)
+    He suggested us to test how the solution's map-major actually worked
+    because the solution's map-major are mapped by row-major and the
+    2-by-2 blocks of pixels are actually mapped by col-major. THANK YOU !!
+    When we made the change in our code to reading the 2-by-2 blocks of pixels
+    by col-major, the lossy image was less pixelated and ppmdiff returned
+    an error of less than 2%. yay!
+
+==============================================================================
+Implementations:
+    We implemented ppmdiff accurately so that when we compare the % error
+    between the original image and the lossy image that we are getting the
+    correct value. We made sure that ppmdiff works by ensuring that we
+    got the expected values when calling the program on the provided
+    ppm files given in lab.
+    From there, we coded the program so that when 40image is called, it
+    takes in the option -c (for compress) or -d (for decompress) but not
+    both and also the name of the file to compress or decompress. Then, we
+    read a PPM image from a file specified on the command line or from
+    standard input. If necessary, we trimmed the last row and/or column of
+    the image so that the width and height of your image are even numbers.
+    Before packing each 2-by-2 block into a 32-bit word, we implemented
+    the interface in file bitpack.c. Our functions used Hanson assertions
+    (from assert.h) to ensure that shift values are for ≤ 64 bits, that
+    widths are ≤ 64, and that bit fields to be accessed or updated fit
+    entirely within the supplied 64 bit word. We designed the bitpack module
+    as implementing the signed functions and the unsigned functions
+    independently, in such a way that neither is aware of the other.
+    Once we tested this and got this working, we started implementing the
+    compression and decompressing of pack each 2-by-2 block and using
+    U-shape testing. For compression, for the PB and PR (chroma) elements of
+    the pixels,  we take the average value of the four pixels in the block
+    (i.e., the DC component). We’ll call these average values PB and PR.
+    We pack a, b, c, d, PB, and PR into a 32-bit word given the table
+    and pack the codework using the Bitpack interface. We made sure to
+    convert the b, c, and d to five-bit signed values assuming that they
+    lie between −0.3 and 0.3.
+    Then for decompression, we read the 32-bit code words in sequence,
+    remembering that each word is stored in big-endian order, with the
+    most significant byte first and failed with a Checked Runtime Error if
+    the supplied file is too short. For each code word, we unpack the
+    values a, b, c, d, and the coded PB and PR into local variables. We
+    use the inverse of the discrete cosine transform to compute
+    Y1, Y2, Y3, and Y4 from a, b, c, and d. Tested. We also tested
+    RBG convert to component and component to RBG. Tested. In decompression,
+    when converting component to RGB, we quantize the RGB values to integers
+    in the range 0 to xxx (which is 1), where xxx is chosen to be appropriate
+    for our denominator, and put the RGB values into pixmap->pixels. Then for
+    compress, we write a compressed binary image to standard output with
+    the appropriate header. For decompression, once we have put all the
+    pixels into our pixmap, we write the uncompressed image to standard output
+    by calling Pnm ppmwrite(stdout, pixmap).
+    We placed assert statements where appropriate and function contracts
+    to describe the purpose of each function.
+    An issue that we were not able to fully implement was freeing the
+    individuals pixels themselves. We have spent time trying to debug the
+    issue but cannot seem to underst and the problem at hand even when
+    we address the errors that come up while attempting to free the
+    pixels.
+==============================================================================
+Approximation Hours Spent:
+
+    We have spent approximately 9 hours analyzing the problems posed in
+    the assignment and spent approximately 28 hours solving the problems
+    after our analysis. Majority of the time was spent debugging when it came
+    to converting RGB to component and component to RGB. We did end up with
+    a program that resulted in a 10% error  compared to the original image.
+    When it came to figuring what the issue was, there was nothing that
+    told us "this is why your program has a 10% error and not 2.5%". With
+    that, we decided to save the program that we had and started with a
+    new file and working from the beginning with our code (basically
+    retracing our steps and doing the U-testing and ppmdiff-ing each step
+    we compress and decompress so that that the error percentage is
+    reasonably small).

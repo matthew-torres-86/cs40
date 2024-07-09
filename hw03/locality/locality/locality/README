@@ -1,0 +1,171 @@
+===============================================================================
+CS40
+HW03 - Locality
+Date: 2/13/22
+
+Group Member Names: Alexander Chanis (achani01),Matt Torres (mtorre07), 
+
+===============================================================================
+Acknowledgements:
+    Work on this project was fairly smooth sailing, we did enlist the help of 
+one TA-- Jeremy. Jeremy helped us figure out why our images were flipping, but
+had a green tint. It turns out, we were only storing the Pixels in a size 8 
+slot in the array, even though the struct called for 12 bytes for each pixel,
+so it was chopping off the entire blue value, resulting in the image looking 
+greener than expected. It was a quick fix!
+
+    We also made use of the solution implementation for the plain UArray2 found
+here: https://www.cs.tufts.edu/comp/40/assignments/solutions/iii/uarray2.c 
+
+===============================================================================
+Implemented:
+    We successfully implemented the required block-major, row-major, and 
+col-major mapping features, the required timing file feature, and the required
+0, 90, and 180 degree rotations. Additionally, we implemented the optional 270 
+degree rotation.
+
+
+===============================================================================
+Not Implemented:
+    We did not implement the flip horizontal, flip vertical, or transpose
+optional functionalities
+
+===============================================================================
+Architecture:
+    This program depends heavily on two major data structures: The unblocked/
+plain UArray2 (uarray2.h) and the blocked UArray2 (UArray2b.h). It also 
+utilizes a polymorphic methods suite, which allows for greater modularity
+when calling UArray methods because you can actually call the same methods
+on two different types of data structures. 
+
+o--------------------o
+| The Plain Uarray2: |
+o--------------------o
+This is a 2D array whose implementation was pulled from the comp40 solution.
+
+it has the following member functions:
+• UArray2_new(int width, int height, int size);
+    Creates a new UArray2 with the given width, height, and element size
+
+• UArray2_free(T *array2);
+    Frees memory allocated in the creation of a UArray2
+
+• UArray2_width(T *array2);
+    Returns width of a UArray2
+
+• UArray2_height(T *array2);
+    Returns height of a UArray2
+
+• UArray2_size(T *array2);
+    Returns size of the element stored in a UArray2
+
+• UArray2_at(T *array2, int i, int j);
+    Returns the element stored in the UArray2 at the given (i, j);
+
+• UArray2_map_row_major(T array2, UArray2_applyfun apply, void *cl);
+    Calls the provided apply function in row major order (traverses 
+    horizontally before vertically). Cl is the result determined by
+    apply function.
+
+• UArray2_map_col_major(T array2, UArray2_applyfun apply, void *cl);
+    Calls the provided apply function in row major order (traverses 
+    vertically before horizontally) Cl is the result determined by
+    apply function.
+
+
+
+o----------------------o
+| The Blocked Uarray2: |
+o----------------------o
+Functionally very similar to the plain UArray2, however it utilizes spatial
+locality, as it ensures that each element in a block are stored near in
+contiguous memory locations, and accessing the memory in block major will
+result in consistent cache hits and therefore speedups.
+
+It utilizes the following functions:
+• UArray2b_new(int width, int height, int size, int blocksize);
+    Creates a new UArray2b with the given width, height, element size and 
+    blocksize
+
+• UArray2b_new_64k_block(int width, int height, int size);
+    Creates a new UArray2 with the given width, height, and element size.
+    Uses the largest logical possible blocksize.
+
+• UArray2b_free(T *array2);
+    Frees memory allocated in the creation of a UArray2
+
+• UArray2b_width(T *array2);
+    Returns width of a UArray2b
+
+• UArray2b_height(T *array2);
+    Returns height of a UArray2b
+
+• UArray2b_size(T *array2);
+    Returns size of the element stored in a UArray2b
+
+• UArray2b_blocksize(T *array2);
+    Returns blocksize of a UArray2b
+
+• UArray2b_at(T *array2, int column, int row);
+    Returns the element stored in the UArray2b at the given (column, row);
+
+• UArray2b_map(T array2, UArray2_applyfun apply, void *cl);
+    Calls the provided apply function in block major order (traverses 
+    each block before moving on to the next block) (accesses blocks in row
+    major order). Cl is the result determined by apply function.
+
+
+o--------------------o
+| The Methods Suite: |
+o--------------------o
+As you can see, there is significant overlap between the functions used in the
+two data structures, and we want to be able to use them interchangably in
+a modular way. The methods suite utilizes function pointers in a struct,
+which allows the client to call a single function which, depending on the type
+it is called on, will apply either the Array2 or the Array2b version of that
+function on the data structure.
+
+This is used in our PPMTrans file to test the timing for each of the different
+modifications, using both of the 2D Array representations interchangably to get
+an efficient and accurate timing result (see results below).
+
+===============================================================================
+Part E Measurements:
+
+All of the below tests were performed on a 2020 MacBook Pro, with a 2 GHz 
+Quad-core intel i5 processor. 
+
+-------------------------------------------------------------------------------
+| Size of img |  Rotation  |   Order   |  Total Time (ns)  |  pixel time (ns) |
+|-------------|------------|-----------|-------------------|------------------|
+|    Small    |     90     |    Row    |     333607362     |     72.869183    |
+|-------------|------------|-----------|-------------------|------------------|
+|    Small    |     90     |    Col    |     366255256     |     80.000397    |
+|-------------|------------|-----------|-------------------|------------------|
+|    Small    |     90     |   Block   |     418469508     |     91.405450    |
+|-------------|------------|-----------|-------------------|------------------|
+|    Small    |     180    |    Row    |     206988187     |     45.212012    |
+|-------------|------------|-----------|-------------------|------------------|
+|    Small    |     180    |    Col    |     550004833     |     120.136446   |
+|-------------|------------|-----------|-------------------|------------------|
+|    Small    |     180    |   Block   |     491658003     |     107.391866   |
+|-------------|------------|-----------|-------------------|------------------|
+|    Large    |     90     |    Row    |    5416633849     |     108.464570   |
+|-------------|------------|-----------|-------------------|------------------|
+|    Large    |     90     |    Col    |    5636931482     |     112.875887   |
+|-------------|------------|-----------|-------------------|------------------|
+|    Large    |     90     |   Block   |    4739304062     |     94.901481    |
+|-------------|------------|-----------|-------------------|------------------|
+|    Large    |     180    |    Row    |    2311436015     |     46.285003    |
+|-------------|------------|-----------|-------------------|------------------|
+|    Large    |     180    |    Col    |    8878602882     |     177.788248   |
+|-------------|------------|-----------|-------------------|------------------|
+|    Large    |     180    |   Block   |    5977350291     |     119.692552   |
+|-------------|------------|-----------|-------------------|------------------|
+
+small image exact size: 2856 x 1503 px
+large image exact size: 8160 x 6120 px
+ 
+===============================================================================
+Hours Spent Approximation:
+• We spent around 20 hours completing this assignment.
